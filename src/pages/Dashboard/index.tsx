@@ -7,6 +7,7 @@ import StudentDashboard from "./StudentDashboard";
 const Dashboard = () => {
   const { user } = useAuth();
 
+  // Se o usuário não estiver completamente registrado, redirecionar para completar cadastro
   if (!user) {
     return null;
   }

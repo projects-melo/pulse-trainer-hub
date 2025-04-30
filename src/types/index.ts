@@ -1,10 +1,12 @@
-
 export interface User {
   id: string;
   name: string;
   email: string;
   role: "trainer" | "student";
   avatar?: string;
+  phone?: string;
+  dateOfBirth?: Date;
+  gender?: string;
   createdAt: Date;
 }
 
@@ -15,6 +17,7 @@ export interface Trainer extends User {
   availability: Availability[];
   bio: string;
   students: Student[];
+  cref?: string; // Número de registro no Conselho Regional de Educação Física
 }
 
 export interface Student extends User {
@@ -24,6 +27,8 @@ export interface Student extends User {
   progress: Progress[];
   trainer?: string; // Trainer ID
   trainingPlan?: string;
+  weight?: number;
+  height?: number;
 }
 
 export interface Availability {
@@ -83,6 +88,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
+  completeRegistration: (additionalData: AdditionalUserData) => Promise<void>;
 }
 
 export interface RegisterData {
@@ -90,6 +96,15 @@ export interface RegisterData {
   email: string;
   password: string;
   role: "trainer" | "student";
+}
+
+export interface AdditionalUserData {
+  phone?: string;
+  dateOfBirth?: Date;
+  gender?: string;
+  weight?: number;
+  height?: number;
+  cref?: string;
 }
 
 export interface TrainingPlan {

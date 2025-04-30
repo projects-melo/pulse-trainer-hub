@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { AuthContextType, RegisterData, User } from "@/types";
+import { AuthContextType, RegisterData, User, AdditionalUserData } from "@/types";
 import { api } from "@/services/api";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -58,13 +58,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem("fitpulse-user", JSON.stringify(newUser));
       
       toast({
-        title: "Cadastro realizado com sucesso",
-        description: `Bem-vindo(a) ao Fit Pulse, ${newUser.name}!`,
+        title: "Cadastro iniciado com sucesso",
+        description: "Complete seu perfil para continuar",
       });
     } catch (error: any) {
       toast({
         title: "Erro ao realizar cadastro",
         description: error.message || "Verifique os dados informados e tente novamente",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const completeRegistration = async (additionalData: AdditionalUserData) => {
+    try {
+      setLoading(true);
+      if (!user) {
+        throw new Error("Usuário não autenticado");
+      }
+      
+      // Aqui você chamaria a API para atualizar os dados do usuário
+      // Como não temos esse endpoint, vamos apenas simular
+      const updatedUser = { ...user, ...additionalData };
+      
+      setUser(updatedUser);
+      localStorage.setItem("fitpulse-user", JSON.stringify(updatedUser));
+      
+      toast({
+        title: "Cadastro concluído com sucesso",
+        description: "Bem-vindo(a) ao FitPulse!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao completar cadastro",
+        description: error.message || "Tente novamente mais tarde",
         variant: "destructive",
       });
       throw error;
@@ -83,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, completeRegistration }}>
       {children}
     </AuthContext.Provider>
   );

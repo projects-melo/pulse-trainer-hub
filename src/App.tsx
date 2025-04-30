@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import CompleteRegistration from "./pages/CompleteRegistration";
 
 // Páginas protegidas
 import Dashboard from "./pages/Dashboard";
@@ -37,6 +38,16 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/cadastro" element={<Register />} />
+              
+              {/* Rota para completar cadastro */}
+              <Route
+                path="/completar-cadastro"
+                element={
+                  <ProtectedRoute>
+                    <CompleteRegistration />
+                  </ProtectedRoute>
+                }
+              />
               
               {/* Rotas protegidas (qualquer usuário logado) */}
               <Route

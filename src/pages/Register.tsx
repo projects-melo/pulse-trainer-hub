@@ -38,7 +38,8 @@ const Register = () => {
         password,
         role,
       });
-      navigate("/dashboard");
+      // Redirecionamos para a página de completar cadastro em vez do dashboard
+      navigate("/completar-cadastro");
     } catch (err: any) {
       setError(err.message || "Ocorreu um erro ao realizar o cadastro. Tente novamente.");
     } finally {
