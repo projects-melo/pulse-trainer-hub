@@ -8,6 +8,8 @@ export interface User {
   dateOfBirth?: Date;
   gender?: string;
   createdAt: Date;
+  username?: string;
+  status?: string;
 }
 
 export interface Trainer extends User {
@@ -96,6 +98,9 @@ export interface RegisterData {
   email: string;
   password: string;
   role: "trainer" | "student";
+  username?: string;
+  confirm_password?: string;
+  status?: string;
 }
 
 export interface AdditionalUserData {
@@ -105,6 +110,8 @@ export interface AdditionalUserData {
   weight?: number;
   height?: number;
   cref?: string;
+  avatar?: string;
+  status?: string;
 }
 
 export interface TrainingPlan {

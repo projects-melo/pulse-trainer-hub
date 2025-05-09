@@ -1,7 +1,7 @@
 
 import { RegisterData, User, AdditionalUserData } from "@/types";
 
-const API_URL = "http://34.207.174.233:7777";
+const API_URL = "http://18.231.163.16";
 
 export const api = {
   login: async (email: string, password: string): Promise<User> => {
@@ -29,12 +29,23 @@ export const api = {
 
   register: async (userData: RegisterData): Promise<User> => {
     try {
+      // Prepare the request body according to the new struct format
+      const registerPayload = {
+        name: userData.name,
+        email: userData.email,
+        username: userData.email.split('@')[0], // Creating username from email as default
+        password: userData.password,
+        confirm_password: userData.password,
+        role: userData.role,
+        status: "active"
+      };
+
       const response = await fetch(`${API_URL}/user/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(registerPayload),
       });
 
       if (!response.ok) {
@@ -50,22 +61,13 @@ export const api = {
     }
   },
 
-  // Simulação - Na versão real, isso chamaria um endpoint para atualizar o perfil
+  // Update API to include additional user data
   updateUserProfile: async (userId: string, additionalData: AdditionalUserData): Promise<User> => {
     try {
-      // Simular uma chamada de API
+      // In a real implementation, we would send this data to the backend
+      // For now we're still simulating storage locally
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Em uma implementação real, aqui faria uma chamada para o backend
-      // const response = await fetch(`${API_URL}/user/${userId}`, {
-      //   method: "PATCH",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(additionalData),
-      // });
-      
-      // Simulando o usuário atualizado
       const storedUser = localStorage.getItem("fitpulse-user");
       if (!storedUser) {
         throw new Error("Usuário não encontrado");
@@ -73,6 +75,9 @@ export const api = {
       
       const user: User = JSON.parse(storedUser);
       const updatedUser = { ...user, ...additionalData };
+      
+      // Store the updated user in localStorage
+      localStorage.setItem("fitpulse-user", JSON.stringify(updatedUser));
       
       return updatedUser;
     } catch (error) {
