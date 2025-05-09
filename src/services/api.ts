@@ -20,7 +20,17 @@ export const api = {
       }
 
       const data = await response.json();
-      return data.user;
+      
+      // Handle case where user might be directly in the response or in a nested property
+      const userData = data.user || data;
+      
+      // Ensure we have a valid user object with required properties
+      if (!userData || !userData.name) {
+        console.error("API response doesn't contain valid user data:", data);
+        throw new Error("Dados de usuário inválidos recebidos do servidor");
+      }
+
+      return userData;
     } catch (error) {
       console.error("Erro ao realizar login:", error);
       throw error;
