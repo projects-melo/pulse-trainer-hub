@@ -1,7 +1,7 @@
 
 import { RegisterData, User, AdditionalUserData } from "@/types";
 
-const API_URL = "http://18.231.163.16";
+const API_URL = "http://localhost:8080";
 
 export const api = {
   login: async (email: string, password: string): Promise<User> => {
