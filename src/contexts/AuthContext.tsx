@@ -31,12 +31,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       const userData = await api.login(email, password);
+      
+      // Store the token separately if needed
+      if (userData.token) {
+        localStorage.setItem("fitpulse-token", userData.token);
+      }
+      
       setUser(userData);
       localStorage.setItem("fitpulse-user", JSON.stringify(userData));
       
+      const displayName = userData.name || email.split('@')[0];
+      
       toast({
         title: "Login realizado com sucesso",
-        description: `Bem-vindo(a) de volta, ${userData.name}!`,
+        description: `Bem-vindo(a) de volta, ${displayName}!`,
       });
     } catch (error: any) {
       toast({

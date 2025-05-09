@@ -10,6 +10,7 @@ export interface User {
   createdAt: Date;
   username?: string;
   status?: string;
+  token?: string; // Added token field
 }
 
 export interface Trainer extends User {

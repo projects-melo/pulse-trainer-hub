@@ -20,14 +20,32 @@ export const api = {
       }
 
       const data = await response.json();
+      console.log("Login response:", data);
       
-      // Handle case where user might be directly in the response or in a nested property
+      // If the API only returns a token, create a minimal user object
+      if (data.token && !data.user && !data.name) {
+        // Use the email from the login request to create a basic user
+        return {
+          id: "temp-id", // Temporary ID until profile is loaded
+          name: email.split('@')[0], // Use part of email as temporary name
+          email: email,
+          role: "trainer", // Default role, can be updated later
+          createdAt: new Date(),
+          token: data.token // Store the token
+        };
+      }
+      
+      // For APIs that return user data directly or nested
       const userData = data.user || data;
       
-      // Ensure we have a valid user object with required properties
-      if (!userData || !userData.name) {
+      if (!userData) {
         console.error("API response doesn't contain valid user data:", data);
         throw new Error("Dados de usuário inválidos recebidos do servidor");
+      }
+      
+      // Add token to user data if it exists in the response
+      if (data.token) {
+        userData.token = data.token;
       }
 
       return userData;
