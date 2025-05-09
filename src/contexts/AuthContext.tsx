@@ -62,12 +62,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       const newUser = await api.register(userData);
+      
+      // Se o registro retornar um token, armazene-o
+      if (newUser && newUser.token) {
+        localStorage.setItem("fitpulse-token", newUser.token);
+      }
+      
       setUser(newUser);
       localStorage.setItem("fitpulse-user", JSON.stringify(newUser));
       
       toast({
-        title: "Cadastro iniciado com sucesso",
-        description: "Complete seu perfil para continuar",
+        title: "Cadastro realizado com sucesso",
+        description: "Bem-vindo(a) ao FitPulse!",
       });
     } catch (error: any) {
       toast({
@@ -114,6 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem("fitpulse-user");
+    localStorage.removeItem("fitpulse-token");
     toast({
       title: "Logout realizado",
       description: "Até a próxima!",

@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -97,11 +98,16 @@ export interface AuthContextType {
 export interface RegisterData {
   name: string;
   email: string;
+  username: string;
   password: string;
+  confirm_password: string;
+  phone: string;
+  date_of_birth: string;
+  gender: string;
   role: "trainer" | "student";
-  username?: string;
-  confirm_password?: string;
-  status?: string;
+  status: string;
+  weight?: number;
+  height?: number;
 }
 
 export interface AdditionalUserData {

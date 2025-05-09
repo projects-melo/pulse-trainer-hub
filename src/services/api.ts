@@ -1,4 +1,3 @@
-
 import { RegisterData, User, AdditionalUserData } from "@/types";
 
 const API_URL = "http://localhost:8080";
@@ -57,23 +56,13 @@ export const api = {
 
   register: async (userData: RegisterData): Promise<User> => {
     try {
-      // Prepare the request body according to the new struct format
-      const registerPayload = {
-        name: userData.name,
-        email: userData.email,
-        username: userData.email.split('@')[0], // Creating username from email as default
-        password: userData.password,
-        confirm_password: userData.password,
-        role: userData.role,
-        status: "active"
-      };
-
+      // Now we can use userData directly as it matches the expected API format
       const response = await fetch(`${API_URL}/user/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(registerPayload),
+        body: JSON.stringify(userData),
       });
 
       if (!response.ok) {
@@ -82,7 +71,7 @@ export const api = {
       }
 
       const data = await response.json();
-      return data.user;
+      return data.user || data;
     } catch (error) {
       console.error("Erro ao realizar cadastro:", error);
       throw error;
