@@ -7,16 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { pt } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import { Loader, Calendar as CalendarIcon, Phone, UserRound, Weight, Ruler } from "lucide-react";
+import { Loader } from "lucide-react";
 
 const Register = () => {
-  const { register } = useAuth();
+  const { setRegistrationData } = useAuth();
   const navigate = useNavigate();
   
   // Campos básicos
@@ -27,30 +21,8 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"trainer" | "student">("student");
   
-  // Campos adicionais
-  const [phone, setPhone] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-  const [gender, setGender] = useState<string>("M");
-  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Formatar o telefone
-  const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    let formatted = digits;
-    
-    if (digits.length > 0) {
-      formatted = `+55${digits}`;
-    }
-    
-    return formatted;
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhone(e.target.value);
-    setPhone(formatted);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,22 +36,22 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const formattedDate = dateOfBirth ? dateOfBirth.toISOString() : "";
-      
-      await register({
+      // Store registration data in context instead of sending to API
+      const basicRegistrationData = {
         name,
         email,
         username,
         password,
         confirm_password: confirmPassword,
-        phone,
-        date_of_birth: formattedDate,
-        gender,
+        phone: "",
+        date_of_birth: "",
+        gender: "",
         role,
         status: "active",
-      });
+      };
       
-      // Redirect to complete registration page instead of dashboard
+      // Set registration data in context and navigate to complete registration
+      setRegistrationData(basicRegistrationData);
       navigate("/completar-cadastro");
     } catch (err: any) {
       setError(err.message || "Ocorreu um erro ao realizar o cadastro. Tente novamente.");
@@ -146,82 +118,6 @@ const Register = () => {
                       onChange={(e) => setUsername(e.target.value)}
                       required
                     />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="flex items-center gap-2">
-                      <Phone className="h-4 w-4" />
-                      Telefone
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="text"
-                      placeholder="+5599999999999"
-                      value={phone}
-                      onChange={handlePhoneChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="dateOfBirth" className="flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4" />
-                      Data de nascimento
-                    </Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          id="dateOfBirth"
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !dateOfBirth && "text-muted-foreground"
-                          )}
-                        >
-                          {dateOfBirth ? (
-                            format(dateOfBirth, "dd 'de' MMMM 'de' yyyy", { locale: pt })
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={dateOfBirth}
-                          onSelect={setDateOfBirth}
-                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <UserRound className="h-4 w-4" />
-                      Gênero
-                    </Label>
-                    <RadioGroup 
-                      value={gender} 
-                      onValueChange={setGender}
-                      className="flex space-x-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="M" id="masculino" />
-                        <Label htmlFor="masculino">Masculino</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="F" id="feminino" />
-                        <Label htmlFor="feminino">Feminino</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="O" id="outro" />
-                        <Label htmlFor="outro">Outro</Label>
-                      </div>
-                    </RadioGroup>
                   </div>
                   
                   <div className="space-y-2">
@@ -306,82 +202,6 @@ const Register = () => {
                       onChange={(e) => setUsername(e.target.value)}
                       required
                     />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="trainerPhone" className="flex items-center gap-2">
-                      <Phone className="h-4 w-4" />
-                      Telefone
-                    </Label>
-                    <Input
-                      id="trainerPhone"
-                      type="text"
-                      placeholder="+5599999999999"
-                      value={phone}
-                      onChange={handlePhoneChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="trainerDateOfBirth" className="flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4" />
-                      Data de nascimento
-                    </Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          id="trainerDateOfBirth"
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !dateOfBirth && "text-muted-foreground"
-                          )}
-                        >
-                          {dateOfBirth ? (
-                            format(dateOfBirth, "dd 'de' MMMM 'de' yyyy", { locale: pt })
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={dateOfBirth}
-                          onSelect={setDateOfBirth}
-                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <UserRound className="h-4 w-4" />
-                      Gênero
-                    </Label>
-                    <RadioGroup 
-                      value={gender} 
-                      onValueChange={setGender}
-                      className="flex space-x-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="M" id="trainerMasculino" />
-                        <Label htmlFor="trainerMasculino">Masculino</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="F" id="trainerFeminino" />
-                        <Label htmlFor="trainerFeminino">Feminino</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="O" id="trainerOutro" />
-                        <Label htmlFor="trainerOutro">Outro</Label>
-                      </div>
-                    </RadioGroup>
                   </div>
                   
                   <div className="space-y-2">

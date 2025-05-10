@@ -67,13 +67,19 @@ export const api = {
 
   register: async (userData: RegisterData): Promise<User> => {
     try {
-      // Now we can use userData directly as it matches the expected API format
+      // Format the data for the API
+      const apiData = {
+        ...userData,
+        role: userData.role === "trainer" ? "personal" : "student", // Map "trainer" to "personal" for API
+      };
+      
+      // Send the complete registration data to the API
       const response = await fetch(`${API_URL}/user/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(apiData),
       });
 
       if (!response.ok) {

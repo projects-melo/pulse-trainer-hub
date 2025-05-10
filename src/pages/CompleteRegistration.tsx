@@ -36,6 +36,7 @@ const CompleteRegistration = () => {
   const [cref, setCref] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [calendarView, setCalendarView] = useState<"day" | "month" | "year">("month");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,20 +65,20 @@ const CompleteRegistration = () => {
     }
   };
 
-  // Format phone number
+  // Format phone number (BR format)
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, "");
     let formatted = digits;
     
     if (digits.length > 0) {
-      formatted = `(${digits.slice(0, 2)}`;
-      
-      if (digits.length > 2) {
-        formatted += `) ${digits.slice(2, 7)}`;
-        
-        if (digits.length > 7) {
-          formatted += `-${digits.slice(7, 11)}`;
-        }
+      if (digits.length <= 2) {
+        formatted = `+55${digits}`;
+      } else if (digits.length <= 4) {
+        formatted = `+55${digits.slice(0, 2)}${digits.slice(2)}`;
+      } else if (digits.length <= 9) {
+        formatted = `+55${digits.slice(0, 2)}${digits.slice(2, 7)}`;
+      } else {
+        formatted = `+55${digits.slice(0, 2)}${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
       }
     }
     
@@ -97,6 +98,90 @@ const CompleteRegistration = () => {
       </div>
     );
   }
+
+  // Custom calendar header to improve year/month navigation
+  const CustomCalendarHeader = ({ 
+    month, 
+    onPreviousClick, 
+    onNextClick,
+    onViewChange
+  }: { 
+    month: Date, 
+    onPreviousClick: () => void, 
+    onNextClick: () => void,
+    onViewChange: (view: "day" | "month" | "year") => void
+  }) => {
+    return (
+      <div className="flex justify-between items-center p-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPreviousClick}
+          className="h-7 w-7 p-0"
+        >
+          &lt;
+        </Button>
+        
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            onClick={() => onViewChange("month")}
+            className={`text-sm ${calendarView === "month" ? "font-bold" : ""}`}
+          >
+            {format(month, "MMM", { locale: pt })}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => onViewChange("year")}
+            className={`text-sm ${calendarView === "year" ? "font-bold" : ""}`}
+          >
+            {format(month, "yyyy")}
+          </Button>
+        </div>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNextClick}
+          className="h-7 w-7 p-0"
+        >
+          &gt;
+        </Button>
+      </div>
+    );
+  };
+
+  // Year selection view
+  const YearView = ({
+    selectedDate,
+    onChange,
+  }: {
+    selectedDate: Date | undefined,
+    onChange: (date: Date) => void,
+  }) => {
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 120 }, (_, i) => currentYear - i);
+    
+    return (
+      <div className="grid grid-cols-4 gap-2 p-2">
+        {years.map((year) => (
+          <Button
+            key={year}
+            variant={selectedDate && selectedDate.getFullYear() === year ? "default" : "outline"}
+            className="h-9"
+            onClick={() => {
+              const newDate = new Date(selectedDate || new Date());
+              newDate.setFullYear(year);
+              onChange(newDate);
+              setCalendarView("month");
+            }}
+          >
+            {year}
+          </Button>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-8">
@@ -126,10 +211,10 @@ const CompleteRegistration = () => {
                 <Input
                   id="phone"
                   type="text"
-                  placeholder="(99) 99999-9999"
+                  placeholder="+5511999999999"
                   value={phone}
                   onChange={handlePhoneChange}
-                  maxLength={15}
+                  maxLength={16}
                   required
                 />
               </div>
@@ -158,14 +243,50 @@ const CompleteRegistration = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateOfBirth}
-                      onSelect={setDateOfBirth}
-                      disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
+                    {calendarView === "year" ? (
+                      <YearView 
+                        selectedDate={dateOfBirth} 
+                        onChange={setDateOfBirth} 
+                      />
+                    ) : (
+                      <>
+                        <CustomCalendarHeader
+                          month={dateOfBirth || new Date()}
+                          onPreviousClick={() => {
+                            if (calendarView === "month") {
+                              const prevMonth = new Date(dateOfBirth || new Date());
+                              prevMonth.setMonth(prevMonth.getMonth() - 1);
+                              setDateOfBirth(prevMonth);
+                            } else {
+                              const prevYear = new Date(dateOfBirth || new Date());
+                              prevYear.setFullYear(prevYear.getFullYear() - 1);
+                              setDateOfBirth(prevYear);
+                            }
+                          }}
+                          onNextClick={() => {
+                            if (calendarView === "month") {
+                              const nextMonth = new Date(dateOfBirth || new Date());
+                              nextMonth.setMonth(nextMonth.getMonth() + 1);
+                              setDateOfBirth(nextMonth);
+                            } else {
+                              const nextYear = new Date(dateOfBirth || new Date());
+                              nextYear.setFullYear(nextYear.getFullYear() + 1);
+                              setDateOfBirth(nextYear);
+                            }
+                          }}
+                          onViewChange={setCalendarView}
+                        />
+                        <Calendar
+                          mode="single"
+                          selected={dateOfBirth}
+                          onSelect={setDateOfBirth}
+                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                          showOutsideDays={false}
+                        />
+                      </>
+                    )}
                   </PopoverContent>
                 </Popover>
               </div>
