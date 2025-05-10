@@ -9,6 +9,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [registrationData, setRegistrationData] = useState<RegisterData | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -60,10 +61,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (userData: RegisterData) => {
     try {
-      setLoading(true);
-      const newUser = await api.register(userData);
+      // Store registration data and navigate to complete registration
+      setRegistrationData(userData);
       
-      // Se o registro retornar um token, armazene-o
+      // Create minimal user data to display in the complete registration page
+      const minimalUser: User = {
+        id: "temp-id",
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        createdAt: new Date(),
+      };
+      
+      // Set temporary user to be used in the complete registration page
+      setUser(minimalUser);
+      
+      toast({
+        title: "Cadastro iniciado com sucesso",
+        description: "Complete seu cadastro com informações adicionais",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao iniciar cadastro",
+        description: error.message || "Verifique os dados informados e tente novamente",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const completeRegistration = async (additionalData: AdditionalUserData) => {
+    try {
+      setLoading(true);
+      if (!user || !registrationData) {
+        throw new Error("Dados de registro incompletos");
+      }
+      
+      // Now send the full registration data to the API
+      const fullRegistrationData = {
+        ...registrationData,
+        phone: additionalData.phone || registrationData.phone,
+        date_of_birth: additionalData.dateOfBirth ? additionalData.dateOfBirth.toISOString() : registrationData.date_of_birth,
+        gender: additionalData.gender || registrationData.gender,
+        weight: additionalData.weight,
+        height: additionalData.height,
+      };
+      
+      // Call API to register the user with complete data
+      const newUser = await api.register(fullRegistrationData);
+      
+      // Store necessary data from the response
       if (newUser && newUser.token) {
         localStorage.setItem("fitpulse-token", newUser.token);
       }
@@ -71,35 +118,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(newUser);
       localStorage.setItem("fitpulse-user", JSON.stringify(newUser));
       
-      toast({
-        title: "Cadastro realizado com sucesso",
-        description: "Bem-vindo(a) ao FitPulse!",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Erro ao realizar cadastro",
-        description: error.message || "Verifique os dados informados e tente novamente",
-        variant: "destructive",
-      });
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const completeRegistration = async (additionalData: AdditionalUserData) => {
-    try {
-      setLoading(true);
-      if (!user) {
-        throw new Error("Usuário não autenticado");
-      }
-      
-      // Aqui você chamaria a API para atualizar os dados do usuário
-      // Como não temos esse endpoint, vamos apenas simular
-      const updatedUser = { ...user, ...additionalData };
-      
-      setUser(updatedUser);
-      localStorage.setItem("fitpulse-user", JSON.stringify(updatedUser));
+      // Clear registration data after successful registration
+      setRegistrationData(null);
       
       toast({
         title: "Cadastro concluído com sucesso",
@@ -119,6 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
+    setRegistrationData(null);
     localStorage.removeItem("fitpulse-user");
     localStorage.removeItem("fitpulse-token");
     toast({
@@ -128,7 +149,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, completeRegistration }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      register, 
+      logout, 
+      completeRegistration,
+      registrationData,
+      setRegistrationData
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -78,7 +78,7 @@ export const api = {
     }
   },
 
-  // Update API to include additional user data
+  // This function is not used in the updated flow, but we'll keep it for potential future use
   updateUserProfile: async (userId: string, additionalData: AdditionalUserData): Promise<User> => {
     try {
       // In a real implementation, we would send this data to the backend

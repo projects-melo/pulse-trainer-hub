@@ -31,8 +31,6 @@ const Register = () => {
   const [phone, setPhone] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
   const [gender, setGender] = useState<string>("M");
-  const [weight, setWeight] = useState<string>("");
-  const [height, setHeight] = useState<string>("");
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,11 +77,10 @@ const Register = () => {
         gender,
         role,
         status: "active",
-        weight: weight ? parseFloat(weight) : undefined,
-        height: height ? parseFloat(height) : undefined,
       });
       
-      navigate("/dashboard");
+      // Redirect to complete registration page instead of dashboard
+      navigate("/completar-cadastro");
     } catch (err: any) {
       setError(err.message || "Ocorreu um erro ao realizar o cadastro. Tente novamente.");
     } finally {
@@ -228,42 +225,6 @@ const Register = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="weight" className="flex items-center gap-2">
-                      <Weight className="h-4 w-4" />
-                      Peso (kg)
-                    </Label>
-                    <Input
-                      id="weight"
-                      type="number"
-                      step="0.1"
-                      min="30"
-                      max="300"
-                      placeholder="Exemplo: 70.5"
-                      value={weight}
-                      onChange={(e) => setWeight(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="height" className="flex items-center gap-2">
-                      <Ruler className="h-4 w-4" />
-                      Altura (m)
-                    </Label>
-                    <Input
-                      id="height"
-                      type="number"
-                      step="0.01"
-                      min="1"
-                      max="2.5"
-                      placeholder="Exemplo: 1.75"
-                      value={height}
-                      onChange={(e) => setHeight(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
                     <Label htmlFor="password">Senha</Label>
                     <Input
                       id="password"
@@ -298,7 +259,7 @@ const Register = () => {
                         Cadastrando...
                       </>
                     ) : (
-                      "Cadastrar como Aluno"
+                      "Continuar"
                     )}
                   </Button>
                 </form>
@@ -458,7 +419,7 @@ const Register = () => {
                         Cadastrando...
                       </>
                     ) : (
-                      "Cadastrar como Personal Trainer"
+                      "Continuar"
                     )}
                   </Button>
                 </form>

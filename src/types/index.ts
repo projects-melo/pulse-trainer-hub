@@ -93,6 +93,8 @@ export interface AuthContextType {
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   completeRegistration: (additionalData: AdditionalUserData) => Promise<void>;
+  registrationData: RegisterData | null; // Added to store registration data
+  setRegistrationData: (data: RegisterData | null) => void; // Added to set registration data
 }
 
 export interface RegisterData {

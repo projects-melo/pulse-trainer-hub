@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -15,19 +15,22 @@ import { cn } from "@/lib/utils";
 import { Loader, Calendar as CalendarIcon, Phone, UserRound, Weight, Ruler } from "lucide-react";
 
 const CompleteRegistration = () => {
-  const { user, completeRegistration } = useAuth();
+  const { user, completeRegistration, registrationData } = useAuth();
   const navigate = useNavigate();
 
-  // Redirecionar se o usuário não estiver autenticado
-  React.useEffect(() => {
-    if (!user) {
-      navigate("/login");
+  // Redirect if user is not authenticated or registration data is missing
+  useEffect(() => {
+    if (!user || !registrationData) {
+      navigate("/cadastro");
     }
-  }, [user, navigate]);
+  }, [user, registrationData, navigate]);
 
-  const [phone, setPhone] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-  const [gender, setGender] = useState<string | undefined>(undefined);
+  // Initialize form state with registration data if available
+  const [phone, setPhone] = useState(registrationData?.phone || "");
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(
+    registrationData?.date_of_birth ? new Date(registrationData.date_of_birth) : undefined
+  );
+  const [gender, setGender] = useState<string>(registrationData?.gender || "");
   const [weight, setWeight] = useState<string>("");
   const [height, setHeight] = useState<string>("");
   const [cref, setCref] = useState<string>("");
@@ -61,7 +64,7 @@ const CompleteRegistration = () => {
     }
   };
 
-  // Formatar o telefone
+  // Format phone number
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, "");
     let formatted = digits;
@@ -85,6 +88,15 @@ const CompleteRegistration = () => {
     const formatted = formatPhone(e.target.value);
     setPhone(formatted);
   };
+
+  // If redirecting, show a loading spinner
+  if (!user || !registrationData) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <Loader className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-8">
@@ -169,15 +181,15 @@ const CompleteRegistration = () => {
                   className="flex space-x-4"
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="masculino" id="masculino" />
+                    <RadioGroupItem value="M" id="masculino" />
                     <Label htmlFor="masculino">Masculino</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="feminino" id="feminino" />
+                    <RadioGroupItem value="F" id="feminino" />
                     <Label htmlFor="feminino">Feminino</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="outro" id="outro" />
+                    <RadioGroupItem value="O" id="outro" />
                     <Label htmlFor="outro">Outro</Label>
                   </div>
                 </RadioGroup>
@@ -199,6 +211,7 @@ const CompleteRegistration = () => {
                       placeholder="Exemplo: 70.5"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
+                      required
                     />
                   </div>
 
@@ -216,6 +229,7 @@ const CompleteRegistration = () => {
                       placeholder="Exemplo: 175"
                       value={height}
                       onChange={(e) => setHeight(e.target.value)}
+                      required
                     />
                   </div>
                 </>
