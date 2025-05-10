@@ -44,7 +44,9 @@ export const Navbar = () => {
     { name: "Cadastro", href: "/cadastro", icon: Users },
   ];
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | undefined) => {
+    if (!name) return "??";
+    
     return name
       .split(" ")
       .map((n) => n[0])
@@ -89,7 +91,7 @@ export const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarImage src={user.avatar} alt={user.name || "User"} />
                     <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -97,9 +99,9 @@ export const Navbar = () => {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.name}</p>
+                    <p className="text-sm font-medium leading-none">{user.name || "User"}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
+                      {user.email || ""}
                     </p>
                   </div>
                 </DropdownMenuLabel>

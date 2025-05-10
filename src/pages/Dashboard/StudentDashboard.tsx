@@ -29,7 +29,7 @@ const StudentDashboard = () => {
     <div className="container py-8">
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Olá, {user?.name}!</h1>
+          <h1 className="text-3xl font-bold mb-2">Olá, {user?.name || 'Aluno'}!</h1>
           <p className="text-muted-foreground">Bem-vindo ao seu dashboard. Aqui você pode acompanhar seu progresso e próximas sessões.</p>
         </div>
 

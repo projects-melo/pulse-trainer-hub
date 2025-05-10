@@ -1,15 +1,25 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import TrainerDashboard from "./TrainerDashboard";
 import StudentDashboard from "./StudentDashboard";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // Se o usuário não estiver completamente registrado, redirecionar para completar cadastro
+  useEffect(() => {
+    // If the user is not authenticated, redirect to login
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+  }, [user, navigate]);
+
+  // If user is still loading or not defined, return a loading state
   if (!user) {
-    return null;
+    return <div className="container py-8 flex justify-center items-center min-h-[60vh]">Carregando...</div>;
   }
 
   return user.role === "trainer" ? <TrainerDashboard /> : <StudentDashboard />;

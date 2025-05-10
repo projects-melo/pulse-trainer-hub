@@ -31,7 +31,9 @@ const TrainerDashboard = () => {
     { id: "3", name: "Lucas Oliveira", goal: "Condicionamento físico", progress: "Regular", avatar: "" },
   ];
   
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | undefined) => {
+    if (!name) return "??";
+    
     return name
       .split(" ")
       .map((n) => n[0])
@@ -45,12 +47,12 @@ const TrainerDashboard = () => {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Olá, {user?.name}!</h1>
+            <h1 className="text-3xl font-bold mb-2">Olá, {user?.name || 'Treinador'}!</h1>
             <p className="text-muted-foreground">Bem-vindo ao seu dashboard de personal trainer.</p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" asChild>
-              <a href="/agenda">Ver Agenda</a>
+              <Link to="/agenda">Ver Agenda</Link>
             </Button>
             <Button>
               <Plus className="h-4 w-4 mr-2" />

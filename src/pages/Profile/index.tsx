@@ -72,7 +72,9 @@ const Profile = () => {
       };
 
   // Função para obter iniciais do nome
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | undefined) => {
+    if (!name) return "??";
+    
     return name
       .split(" ")
       .map((n) => n[0])

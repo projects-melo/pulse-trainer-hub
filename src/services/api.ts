@@ -1,3 +1,4 @@
+
 import { RegisterData, User, AdditionalUserData } from "@/types";
 
 const API_URL = "http://localhost:8080";
@@ -22,7 +23,7 @@ export const api = {
       console.log("Login response:", data);
       
       // If the API only returns a token, create a minimal user object
-      if (data.token && !data.user && !data.name) {
+      if (data.token && (!data.user && !data.name)) {
         // Use the email from the login request to create a basic user
         return {
           id: "temp-id", // Temporary ID until profile is loaded
@@ -47,7 +48,17 @@ export const api = {
         userData.token = data.token;
       }
 
-      return userData;
+      // Ensure all required user properties exist
+      const safeUser: User = {
+        id: userData.id || "temp-id",
+        name: userData.name || email.split('@')[0],
+        email: userData.email || email,
+        role: userData.role || "trainer",
+        createdAt: userData.createdAt || new Date(),
+        token: userData.token || null
+      };
+
+      return safeUser;
     } catch (error) {
       console.error("Erro ao realizar login:", error);
       throw error;
@@ -71,7 +82,31 @@ export const api = {
       }
 
       const data = await response.json();
-      return data.user || data;
+      
+      // If registration is successful but no user data is returned, create basic user
+      if (!data.user && !data) {
+        return {
+          id: "temp-id", 
+          name: userData.name || userData.email.split('@')[0],
+          email: userData.email,
+          role: userData.role,
+          createdAt: new Date(),
+        };
+      }
+      
+      const registeredUser = data.user || data;
+      
+      // Create safe user with fallbacks for all required fields
+      const safeUser: User = {
+        id: registeredUser.id || "temp-id",
+        name: registeredUser.name || userData.name || userData.email.split('@')[0],
+        email: registeredUser.email || userData.email,
+        role: registeredUser.role || userData.role,
+        createdAt: registeredUser.createdAt || new Date(),
+        token: registeredUser.token || null
+      };
+      
+      return safeUser;
     } catch (error) {
       console.error("Erro ao realizar cadastro:", error);
       throw error;
