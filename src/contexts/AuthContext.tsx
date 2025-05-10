@@ -61,7 +61,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (userData: RegisterData) => {
     try {
-      // Store registration data and navigate to complete registration
+      // Store registration data locally and continue to complete registration
+      // Do NOT send to API yet
       setRegistrationData(userData);
       
       // Create minimal user data to display in the complete registration page
@@ -103,8 +104,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         phone: additionalData.phone || registrationData.phone,
         date_of_birth: additionalData.dateOfBirth ? additionalData.dateOfBirth.toISOString() : registrationData.date_of_birth,
         gender: additionalData.gender || registrationData.gender,
-        weight: additionalData.weight,
-        height: additionalData.height,
+        // Include role-specific fields
+        ...(user.role === "student" ? {
+          weight: additionalData.weight,
+          height: additionalData.height,
+        } : {
+          cref: additionalData.cref,
+        }),
       };
       
       // Call API to register the user with complete data

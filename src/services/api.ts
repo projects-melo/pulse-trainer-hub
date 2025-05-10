@@ -1,4 +1,3 @@
-
 import { RegisterData, User, AdditionalUserData } from "@/types";
 
 const API_URL = "http://localhost:8080";
@@ -67,6 +66,8 @@ export const api = {
 
   register: async (userData: RegisterData): Promise<User> => {
     try {
+      console.log("Sending complete registration data to API:", userData);
+      
       // Format the data for the API
       const apiData = {
         ...userData,
@@ -88,6 +89,7 @@ export const api = {
       }
 
       const data = await response.json();
+      console.log("Registration response:", data);
       
       // If registration is successful but no user data is returned, create basic user
       if (!data.user && !data) {
@@ -107,7 +109,7 @@ export const api = {
         id: registeredUser.id || "temp-id",
         name: registeredUser.name || userData.name || userData.email.split('@')[0],
         email: registeredUser.email || userData.email,
-        role: registeredUser.role || userData.role,
+        role: registeredUser.role === "personal" ? "trainer" : "student", // Map API response back to our app's roles
         createdAt: registeredUser.createdAt || new Date(),
         token: registeredUser.token || null
       };
