@@ -92,7 +92,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
-  completeRegistration: (additionalData: AdditionalUserData) => Promise<void>;
+  completeRegistration: (additionalData: AdditionalUserData) => Promise<boolean>;
   registrationData: RegisterData | null; // Added to store registration data
   setRegistrationData: (data: RegisterData | null) => void; // Added to set registration data
 }

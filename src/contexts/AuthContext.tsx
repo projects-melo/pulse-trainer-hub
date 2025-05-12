@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { AuthContextType, RegisterData, User, AdditionalUserData } from "@/types";
 import { api } from "@/services/api";
@@ -91,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const completeRegistration = async (additionalData: AdditionalUserData) => {
+  const completeRegistration = async (additionalData: AdditionalUserData): Promise<boolean> => {
     try {
       setLoading(true);
       if (!user || !registrationData) {
@@ -125,7 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "Faça login com as suas credenciais para continuar.",
       });
       
-      // Não definir usuário após cadastro - redirecionar para login
+      // Return true to indicate successful registration
       return true;
     } catch (error: any) {
       toast({
