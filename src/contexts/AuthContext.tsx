@@ -114,23 +114,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       // Call API to register the user with complete data
-      const newUser = await api.register(fullRegistrationData);
+      await api.register(fullRegistrationData);
       
-      // Store necessary data from the response
-      if (newUser && newUser.token) {
-        localStorage.setItem("fitpulse-token", newUser.token);
-      }
-      
-      setUser(newUser);
-      localStorage.setItem("fitpulse-user", JSON.stringify(newUser));
-      
-      // Clear registration data after successful registration
+      // Limpa os dados temporários
+      setUser(null);
       setRegistrationData(null);
       
       toast({
         title: "Cadastro concluído com sucesso",
-        description: "Bem-vindo(a) ao FitPulse!",
+        description: "Faça login com as suas credenciais para continuar.",
       });
+      
+      // Não definir usuário após cadastro - redirecionar para login
+      return true;
     } catch (error: any) {
       toast({
         title: "Erro ao completar cadastro",

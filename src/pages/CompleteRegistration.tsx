@@ -13,6 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Loader, Calendar as CalendarIcon, Phone, UserRound, Weight, Ruler } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const CompleteRegistration = () => {
   const { user, completeRegistration, registrationData } = useAuth();
@@ -61,11 +62,11 @@ const CompleteRegistration = () => {
       };
 
       await completeRegistration(additionalData);
-      navigate("/dashboard");
+      // Redirecionar para a página de login após o registro bem-sucedido
+      navigate("/login");
     } catch (err: any) {
       setError(err.message || "Ocorreu um erro ao completar seu cadastro. Tente novamente.");
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Garante que o loading seja removido em caso de erro
     }
   };
 
@@ -76,13 +77,13 @@ const CompleteRegistration = () => {
     
     if (digits.length > 0) {
       if (digits.length <= 2) {
-        formatted = `+55${digits}`;
+        formatted = `+${digits}`;
       } else if (digits.length <= 4) {
-        formatted = `+55${digits.slice(0, 2)}${digits.slice(2)}`;
+        formatted = `+${digits.slice(0, 2)}${digits.slice(2)}`;
       } else if (digits.length <= 9) {
-        formatted = `+55${digits.slice(0, 2)}${digits.slice(2, 7)}`;
+        formatted = `+${digits.slice(0, 2)}${digits.slice(2, 7)}`;
       } else {
-        formatted = `+55${digits.slice(0, 2)}${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+        formatted = `+${digits.slice(0, 2)}${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
       }
     }
     
@@ -103,86 +104,27 @@ const CompleteRegistration = () => {
     );
   }
 
-  // Custom calendar header to improve year/month navigation
-  const CustomCalendarHeader = ({ 
-    month, 
-    onPreviousClick, 
-    onNextClick,
-    onViewChange
-  }: { 
-    month: Date, 
-    onPreviousClick: () => void, 
-    onNextClick: () => void,
-    onViewChange: (view: "day" | "month" | "year") => void
-  }) => {
-    return (
-      <div className="flex justify-between items-center p-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPreviousClick}
-          className="h-7 w-7 p-0"
-        >
-          &lt;
-        </Button>
-        
-        <div className="flex gap-1">
-          <Button
-            variant="ghost"
-            onClick={() => onViewChange("month")}
-            className={`text-sm ${calendarView === "month" ? "font-bold" : ""}`}
-          >
-            {format(month, "MMM", { locale: pt })}
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => onViewChange("year")}
-            className={`text-sm ${calendarView === "year" ? "font-bold" : ""}`}
-          >
-            {format(month, "yyyy")}
-          </Button>
-        </div>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNextClick}
-          className="h-7 w-7 p-0"
-        >
-          &gt;
-        </Button>
-      </div>
-    );
-  };
-
-  // Year selection view
-  const YearView = ({
-    selectedDate,
-    onChange,
-  }: {
-    selectedDate: Date | undefined,
-    onChange: (date: Date) => void,
-  }) => {
+  // Componente para exibir anos para seleção rápida
+  const YearPicker = ({ onChange }: { onChange: (year: number) => void }) => {
     const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 120 }, (_, i) => currentYear - i);
+    const startYear = currentYear - 100;
+    const years = Array.from({ length: 101 }, (_, i) => startYear + i).reverse();
     
     return (
-      <div className="grid grid-cols-4 gap-2 p-2">
-        {years.map((year) => (
-          <Button
-            key={year}
-            variant={selectedDate && selectedDate.getFullYear() === year ? "default" : "outline"}
-            className="h-9"
-            onClick={() => {
-              const newDate = new Date(selectedDate || new Date());
-              newDate.setFullYear(year);
-              onChange(newDate);
-              setCalendarView("month");
-            }}
-          >
-            {year}
-          </Button>
-        ))}
+      <div className="p-3 h-64 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-2">
+          {years.map(year => (
+            <Button
+              key={year}
+              variant="outline"
+              size="sm"
+              onClick={() => onChange(year)}
+              className="h-8"
+            >
+              {year}
+            </Button>
+          ))}
+        </div>
       </div>
     );
   };
@@ -202,9 +144,9 @@ const CompleteRegistration = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 text-sm bg-destructive/20 text-destructive rounded-md">
-                  {error}
-                </div>
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
 
               <div className="space-y-2">
@@ -228,71 +170,61 @@ const CompleteRegistration = () => {
                   <CalendarIcon className="h-4 w-4" />
                   Data de nascimento
                 </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="dateOfBirth"
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !dateOfBirth && "text-muted-foreground"
-                      )}
-                    >
-                      {dateOfBirth ? (
-                        format(dateOfBirth, "dd 'de' MMMM 'de' yyyy", { locale: pt })
-                      ) : (
-                        <span>Selecione uma data</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    {calendarView === "year" ? (
-                      <YearView 
-                        selectedDate={dateOfBirth} 
-                        onChange={setDateOfBirth} 
+                <div className="grid grid-cols-2 gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-center text-center",
+                          !dateOfBirth && "text-muted-foreground"
+                        )}
+                      >
+                        Selecionar Ano
+                        <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <YearPicker
+                        onChange={(year) => {
+                          const newDate = new Date(dateOfBirth || new Date());
+                          newDate.setFullYear(year);
+                          setDateOfBirth(newDate);
+                        }}
                       />
-                    ) : (
-                      <>
-                        <CustomCalendarHeader
-                          month={dateOfBirth || new Date()}
-                          onPreviousClick={() => {
-                            if (calendarView === "month") {
-                              const prevMonth = new Date(dateOfBirth || new Date());
-                              prevMonth.setMonth(prevMonth.getMonth() - 1);
-                              setDateOfBirth(prevMonth);
-                            } else {
-                              const prevYear = new Date(dateOfBirth || new Date());
-                              prevYear.setFullYear(prevYear.getFullYear() - 1);
-                              setDateOfBirth(prevYear);
-                            }
-                          }}
-                          onNextClick={() => {
-                            if (calendarView === "month") {
-                              const nextMonth = new Date(dateOfBirth || new Date());
-                              nextMonth.setMonth(nextMonth.getMonth() + 1);
-                              setDateOfBirth(nextMonth);
-                            } else {
-                              const nextYear = new Date(dateOfBirth || new Date());
-                              nextYear.setFullYear(nextYear.getFullYear() + 1);
-                              setDateOfBirth(nextYear);
-                            }
-                          }}
-                          onViewChange={setCalendarView}
-                        />
-                        <Calendar
-                          mode="single"
-                          selected={dateOfBirth}
-                          onSelect={setDateOfBirth}
-                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                          showOutsideDays={false}
-                        />
-                      </>
-                    )}
-                  </PopoverContent>
-                </Popover>
+                    </PopoverContent>
+                  </Popover>
+                  
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="dateOfBirth"
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-center text-center",
+                          !dateOfBirth && "text-muted-foreground"
+                        )}
+                      >
+                        {dateOfBirth ? (
+                          format(dateOfBirth, "dd/MM/yyyy", { locale: pt })
+                        ) : (
+                          <span>Selecionar Data</span>
+                        )}
+                        <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dateOfBirth}
+                        onSelect={setDateOfBirth}
+                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
 
               <div className="space-y-2">

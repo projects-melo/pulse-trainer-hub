@@ -1,3 +1,4 @@
+
 import { RegisterData, User, AdditionalUserData } from "@/types";
 
 const API_URL = "http://localhost:8080";
@@ -14,8 +15,20 @@ export const api = {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Falha ao realizar login");
+        // Tenta obter a mensagem de erro do servidor
+        const errorText = await response.text();
+        let errorMessage = "Falha ao realizar login";
+        
+        try {
+          // Tenta converter para JSON se possível
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorText;
+        } catch {
+          // Se não for JSON, usa o texto como está
+          errorMessage = errorText;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -84,8 +97,20 @@ export const api = {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Falha ao realizar cadastro");
+        // Tenta obter a mensagem de erro do servidor
+        const errorText = await response.text();
+        let errorMessage = "Falha ao realizar cadastro";
+        
+        try {
+          // Tenta converter para JSON se possível
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorText;
+        } catch {
+          // Se não for JSON, usa o texto como está
+          errorMessage = errorText || "Falha ao realizar cadastro";
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
