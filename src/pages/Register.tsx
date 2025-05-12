@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader } from "lucide-react";
 
 const Register = () => {
-  const { setRegistrationData } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
   
   // Campos básicos
@@ -36,7 +36,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      // Store registration data in context instead of sending to API
+      // Prepare registration data for context store
       const basicRegistrationData = {
         name,
         email,
@@ -50,8 +50,10 @@ const Register = () => {
         status: "active",
       };
       
-      // Set registration data in context and navigate to complete registration
-      setRegistrationData(basicRegistrationData);
+      // Store registration data in context
+      await register(basicRegistrationData);
+      
+      // After register function completes successfully, navigate to complete registration
       navigate("/completar-cadastro");
     } catch (err: any) {
       setError(err.message || "Ocorreu um erro ao realizar o cadastro. Tente novamente.");

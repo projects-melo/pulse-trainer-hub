@@ -8,7 +8,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, registrationData } = useAuth();
+  const currentPath = window.location.pathname;
 
   if (loading) {
     return (
@@ -18,6 +19,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
+  // Se estiver na rota de completar cadastro e tiver dados de registro, permite o acesso
+  // mesmo sem um usuário completamente autenticado
+  if (currentPath === "/completar-cadastro" && registrationData) {
+    return <>{children}</>;
+  }
+  
+  // Para outras rotas protegidas, exige um usuário completamente autenticado
   if (!user) {
     return <Navigate to="/login" replace />;
   }

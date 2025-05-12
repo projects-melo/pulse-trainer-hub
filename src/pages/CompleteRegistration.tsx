@@ -18,12 +18,13 @@ const CompleteRegistration = () => {
   const { user, completeRegistration, registrationData } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if user is not authenticated or registration data is missing
+  // Redirect if registration data is missing
   useEffect(() => {
-    if (!user || !registrationData) {
+    if (!registrationData) {
       navigate("/cadastro");
+      return;
     }
-  }, [user, registrationData, navigate]);
+  }, [registrationData, navigate]);
 
   // Initialize form state with registration data if available
   const [phone, setPhone] = useState(registrationData?.phone || "");
@@ -38,6 +39,9 @@ const CompleteRegistration = () => {
   const [error, setError] = useState<string | null>(null);
   const [calendarView, setCalendarView] = useState<"day" | "month" | "year">("month");
 
+  // Get the role from registrationData since user might not be fully set yet
+  const userRole = user?.role || registrationData?.role || "student";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -48,7 +52,7 @@ const CompleteRegistration = () => {
         phone,
         dateOfBirth,
         gender,
-        ...(user?.role === "student" ? {
+        ...(userRole === "student" ? {
           weight: weight ? parseFloat(weight) : undefined,
           height: height ? parseFloat(height) : undefined,
         } : {
@@ -91,7 +95,7 @@ const CompleteRegistration = () => {
   };
 
   // If redirecting, show a loading spinner
-  if (!user || !registrationData) {
+  if (!registrationData) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <Loader className="h-8 w-8 animate-spin" />
@@ -190,7 +194,7 @@ const CompleteRegistration = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Complete seu cadastro</CardTitle>
             <CardDescription className="text-center">
-              {user?.role === "student" 
+              {userRole === "student" 
                 ? "Informe seus dados pessoais para personalizar sua experiência" 
                 : "Informe seus dados profissionais para completar seu cadastro"}
             </CardDescription>
@@ -316,7 +320,7 @@ const CompleteRegistration = () => {
                 </RadioGroup>
               </div>
 
-              {user?.role === "student" ? (
+              {userRole === "student" ? (
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="weight" className="flex items-center gap-2">
