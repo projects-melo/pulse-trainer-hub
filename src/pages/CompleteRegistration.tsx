@@ -33,9 +33,9 @@ const CompleteRegistration = () => {
     registrationData?.date_of_birth ? new Date(registrationData.date_of_birth) : undefined
   );
   const [gender, setGender] = useState<string>(registrationData?.gender || "");
-  const [weight, setWeight] = useState<string>("");
-  const [height, setHeight] = useState<string>("");
-  const [cref, setCref] = useState<string>("");
+  const [weight, setWeight] = useState<string>(registrationData?.weight?.toString() || "");
+  const [height, setHeight] = useState<string>(registrationData?.height?.toString() || "");
+  const [cref, setCref] = useState<string>(registrationData?.cref || "");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [calendarView, setCalendarView] = useState<"day" | "month" | "year">("month");
@@ -49,6 +49,17 @@ const CompleteRegistration = () => {
     setIsLoading(true);
 
     try {
+      // Basic form validation
+      if (userRole === "student") {
+        if (weight && Number(weight) > 999.99) {
+          throw new Error("Peso não pode exceder 999.99 kg");
+        }
+        
+        if (height && Number(height) > 300) {
+          throw new Error("Altura não pode exceder 300 cm");
+        }
+      }
+
       const additionalData = {
         phone,
         dateOfBirth,
@@ -61,11 +72,14 @@ const CompleteRegistration = () => {
         }),
       };
 
-      await completeRegistration(additionalData);
-      // Redirecionar para a página de login após o registro bem-sucedido
-      navigate("/login");
+      const success = await completeRegistration(additionalData);
+      if (success) {
+        // Redirecionar para a página de login após o registro bem-sucedido
+        navigate("/login");
+      }
     } catch (err: any) {
       setError(err.message || "Ocorreu um erro ao completar seu cadastro. Tente novamente.");
+    } finally {
       setIsLoading(false); // Garante que o loading seja removido em caso de erro
     }
   };
@@ -264,12 +278,13 @@ const CompleteRegistration = () => {
                       type="number"
                       step="0.1"
                       min="30"
-                      max="300"
+                      max="999.99"
                       placeholder="Exemplo: 70.5"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
                       required
                     />
+                    <p className="text-xs text-muted-foreground">Máximo: 999.99 kg</p>
                   </div>
 
                   <div className="space-y-2">
@@ -282,12 +297,13 @@ const CompleteRegistration = () => {
                       type="number"
                       step="1"
                       min="100"
-                      max="250"
+                      max="300"
                       placeholder="Exemplo: 175"
                       value={height}
                       onChange={(e) => setHeight(e.target.value)}
                       required
                     />
+                    <p className="text-xs text-muted-foreground">Em centímetros. Máximo: 300 cm</p>
                   </div>
                 </>
               ) : (

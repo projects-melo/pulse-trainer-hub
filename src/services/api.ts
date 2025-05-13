@@ -87,6 +87,24 @@ export const api = {
         role: userData.role === "trainer" ? "personal" : "student", // Map "trainer" to "personal" for API
       };
       
+      // Format weight and height values according to database constraints
+      if (apiData.weight !== undefined && apiData.weight !== null) {
+        // Ensure weight is within the numeric(5,2) range
+        if (apiData.weight > 999.99) {
+          throw new Error("Peso não pode exceder 999.99 kg");
+        }
+      }
+
+      if (apiData.height !== undefined && apiData.height !== null) {
+        // Convert height from cm to meters for the numeric(3,2) field
+        apiData.height = Number((apiData.height / 100).toFixed(2));
+        
+        // Ensure height is within the numeric(3,2) range
+        if (apiData.height > 9.99) {
+          throw new Error("Altura não pode exceder 9.99 metros");
+        }
+      }
+      
       // Send the complete registration data to the API
       const response = await fetch(`${API_URL}/user/create`, {
         method: "POST",
