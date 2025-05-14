@@ -110,6 +110,7 @@ export interface RegisterData {
   status: string;
   weight?: number;
   height?: number;
+  cref?: string; // Added missing cref property
 }
 
 export interface AdditionalUserData {
