@@ -239,7 +239,8 @@ export const api = {
         height: userData.height ? Number(userData.height) * 100 : undefined, // Converter de metros para cm
         cref: userData.cref,
         avatar: userData.avatar,
-        status: userData.status
+        status: userData.status,
+        address: userData.address
       };
       
       return safeUser;

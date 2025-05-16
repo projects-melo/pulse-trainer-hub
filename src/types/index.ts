@@ -11,6 +11,9 @@ export interface User {
   username?: string;
   status?: string;
   token?: string;
+  weight?: number;
+  height?: number;
+  address?: string;
 }
 
 export interface Trainer extends User {
