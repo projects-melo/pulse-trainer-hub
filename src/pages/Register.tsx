@@ -91,7 +91,7 @@ const Register = () => {
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Seu nome"
+                      placeholder="seu nome"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
@@ -115,7 +115,7 @@ const Register = () => {
                     <Input
                       id="username"
                       type="text"
-                      placeholder="seunome"
+                      placeholder="username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       required
@@ -139,7 +139,7 @@ const Register = () => {
                     <Input
                       id="confirmPassword"
                       type="password"
-                      placeholder="********"
+                      placeholder="confirme a senha"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required

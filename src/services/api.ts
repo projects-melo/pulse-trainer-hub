@@ -39,7 +39,8 @@ export const api = {
         // Use the email from the login request to create a basic user
         return {
           id: "temp-id", // Temporary ID until profile is loaded
-          name: email.split('@')[0], // Use part of email as temporary name
+          name: data.name, // Use part of email as temporary name
+          username: data.username,
           email: email,
           role: "trainer", // Default role, can be updated later
           createdAt: new Date(),
@@ -65,6 +66,7 @@ export const api = {
         id: userData.id || "temp-id",
         name: userData.name || email.split('@')[0],
         email: userData.email || email,
+        username: userData.username || null,
         role: userData.role || "trainer",
         createdAt: userData.createdAt || new Date(),
         token: userData.token || null
@@ -139,6 +141,7 @@ export const api = {
         return {
           id: "temp-id", 
           name: userData.name || userData.email.split('@')[0],
+          username: userData.username,
           email: userData.email,
           role: userData.role,
           createdAt: new Date(),
@@ -152,6 +155,7 @@ export const api = {
         id: registeredUser.id || "temp-id",
         name: registeredUser.name || userData.name || userData.email.split('@')[0],
         email: registeredUser.email || userData.email,
+        username: registeredUser.username || userData.username || null,
         role: registeredUser.role === "personal" ? "trainer" : "student", // Map API response back to our app's roles
         createdAt: registeredUser.createdAt || new Date(),
         token: registeredUser.token || null
