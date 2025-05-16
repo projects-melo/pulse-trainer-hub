@@ -14,6 +14,7 @@ export interface User {
   weight?: number;
   height?: number;
   address?: string;
+  cref?: string;
 }
 
 export interface Trainer extends User {
