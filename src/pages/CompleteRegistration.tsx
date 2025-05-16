@@ -42,6 +42,7 @@ const CompleteRegistration = () => {
 
   // Get the role from registrationData since user might not be fully set yet
   const userRole = user?.role || registrationData?.role || "student";
+  const [calendarView, setCalendarView] = useState<"day" | "year">("day");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,61 +185,65 @@ const CompleteRegistration = () => {
                   <CalendarIcon className="h-4 w-4" />
                   Data de nascimento
                 </Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-center text-center",
-                          !dateOfBirth && "text-muted-foreground"
-                        )}
-                      >
-                        Selecionar Ano
-                        <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <YearPicker
-                        onChange={(year) => {
-                          const newDate = new Date(dateOfBirth || new Date());
-                          newDate.setFullYear(year);
-                          setDateOfBirth(newDate);
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        id="dateOfBirth"
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-center text-center",
-                          !dateOfBirth && "text-muted-foreground"
-                        )}
-                      >
-                        {dateOfBirth ? (
-                          format(dateOfBirth, "dd/MM/yyyy", { locale: pt })
-                        ) : (
-                          <span>Selecionar Data</span>
-                        )}
-                        <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+
+                <Popover
+                  onOpenChange={(open) => !open && setCalendarView("day")}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="dateOfBirth"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-between",
+                        !dateOfBirth && "text-muted-foreground"
+                      )}
+                    >
+                      {dateOfBirth
+                        ? format(dateOfBirth, "dd/MM/yyyy", { locale: pt })
+                        : "Selecione a data"}
+                      <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+
+                  <PopoverContent className="w-auto p-0" align="start">
+                    {calendarView === "day" ? (
+                      // Visualização de dias (mês corrente)
                       <Calendar
                         mode="single"
                         selected={dateOfBirth}
                         onSelect={setDateOfBirth}
-                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
                         initialFocus
-                        className={cn("p-3 pointer-events-auto")}
+                        className="p-3 pointer-events-auto"
                       />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                    ) : (
+                      // Visualização de anos
+                      <YearPicker
+                        onChange={(year) => {
+                          const newDate = dateOfBirth || new Date();
+                          newDate.setFullYear(year);
+                          setDateOfBirth(newDate);
+                          setCalendarView("day");
+                        }}
+                      />
+                    )}
+
+                    {/* Botão para alternar entre dia ↔ ano */}
+                    <div className="border-t p-2 flex justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setCalendarView((v) => (v === "day" ? "year" : "day"))
+                        }
+                      >
+                        {calendarView === "day" ? "Selecionar ano" : "Selecionar dia"}
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2">
