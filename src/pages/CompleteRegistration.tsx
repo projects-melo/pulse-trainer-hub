@@ -38,11 +38,10 @@ const CompleteRegistration = () => {
   const [cref, setCref] = useState<string>(registrationData?.cref || "");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [calendarView, setCalendarView] = useState<"day" | "month" | "year">("month");
+  const [calendarView, setCalendarView] = useState<"day" | "year">("day");
 
   // Get the role from registrationData since user might not be fully set yet
   const userRole = user?.role || registrationData?.role || "student";
-  const [calendarView, setCalendarView] = useState<"day" | "year">("day");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,9 +185,7 @@ const CompleteRegistration = () => {
                   Data de nascimento
                 </Label>
 
-                <Popover
-                  onOpenChange={(open) => !open && setCalendarView("day")}
-                >
+                <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       id="dateOfBirth"
@@ -206,42 +203,16 @@ const CompleteRegistration = () => {
                   </PopoverTrigger>
 
                   <PopoverContent className="w-auto p-0" align="start">
-                    {calendarView === "day" ? (
-                      // Visualização de dias (mês corrente)
-                      <Calendar
-                        mode="single"
-                        selected={dateOfBirth}
-                        onSelect={setDateOfBirth}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                      />
-                    ) : (
-                      // Visualização de anos
-                      <YearPicker
-                        onChange={(year) => {
-                          const newDate = dateOfBirth || new Date();
-                          newDate.setFullYear(year);
-                          setDateOfBirth(newDate);
-                          setCalendarView("day");
-                        }}
-                      />
-                    )}
-
-                    {/* Botão para alternar entre dia ↔ ano */}
-                    <div className="border-t p-2 flex justify-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setCalendarView((v) => (v === "day" ? "year" : "day"))
-                        }
-                      >
-                        {calendarView === "day" ? "Selecionar ano" : "Selecionar dia"}
-                      </Button>
-                    </div>
+                    <Calendar
+                      mode="single"
+                      selected={dateOfBirth}
+                      onSelect={setDateOfBirth}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1900-01-01")
+                      }
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
                   </PopoverContent>
                 </Popover>
               </div>

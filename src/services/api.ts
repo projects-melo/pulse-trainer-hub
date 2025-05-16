@@ -1,4 +1,3 @@
-
 import { RegisterData, User, AdditionalUserData } from "@/types";
 
 const API_URL = "http://localhost:8080";
@@ -192,4 +191,100 @@ export const api = {
       throw error;
     }
   },
+
+  // Nova função para buscar informações do usuário atual
+  getUserProfile: async (token: string): Promise<User> => {
+    try {
+      const response = await fetch(`${API_URL}/user/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = "Falha ao buscar informações do usuário";
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorText;
+        } catch {
+          errorMessage = errorText;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("User profile response:", data);
+      
+      // Mapear os dados do backend para o formato esperado pelo frontend
+      const userData = data.data || data;
+      
+      // Criar um objeto de usuário seguro com todos os campos necessários
+      const safeUser: User = {
+        id: userData.id || "temp-id",
+        name: userData.name || "",
+        email: userData.email || "",
+        username: userData.username || "",
+        role: userData.role === "personal" ? "trainer" : "student", // Map API response back to our app's roles
+        createdAt: userData.created_at ? new Date(userData.created_at) : new Date(),
+        token: token,
+        phone: userData.phone,
+        gender: userData.gender,
+        dateOfBirth: userData.date_of_birth ? new Date(userData.date_of_birth) : undefined,
+        weight: userData.weight,
+        height: userData.height ? Number(userData.height) * 100 : undefined, // Converter de metros para cm
+        cref: userData.cref,
+        avatar: userData.avatar,
+        status: userData.status
+      };
+      
+      return safeUser;
+    } catch (error) {
+      console.error("Erro ao buscar perfil do usuário:", error);
+      throw error;
+    }
+  },
+
+  // Nova função para fazer upload de avatar
+  uploadAvatar: async (token: string, file: File): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const response = await fetch(`${API_URL}/user/upload`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = "Falha ao fazer upload da imagem";
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorText;
+        } catch {
+          errorMessage = errorText;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("Avatar upload response:", data);
+      
+      // Retornar a URL da imagem ou um identificador de sucesso
+      return data.avatar_url || data.message || "Upload realizado com sucesso";
+    } catch (error) {
+      console.error("Erro ao fazer upload de avatar:", error);
+      throw error;
+    }
+  }
 };

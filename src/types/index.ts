@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -11,7 +10,7 @@ export interface User {
   createdAt: Date;
   username?: string;
   status?: string;
-  token?: string; // Added token field
+  token?: string;
 }
 
 export interface Trainer extends User {
@@ -21,7 +20,7 @@ export interface Trainer extends User {
   availability: Availability[];
   bio: string;
   students: Student[];
-  cref?: string; // Número de registro no Conselho Regional de Educação Física
+  cref?: string;
 }
 
 export interface Student extends User {
@@ -29,16 +28,16 @@ export interface Student extends User {
   goals: string[];
   healthInfo: HealthInfo;
   progress: Progress[];
-  trainer?: string; // Trainer ID
+  trainer?: string;
   trainingPlan?: string;
   weight?: number;
   height?: number;
 }
 
 export interface Availability {
-  dayOfWeek: number; // 0 = domingo, 6 = sábado
-  startTime: string; // formato "HH:MM"
-  endTime: string; // formato "HH:MM"
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
 }
 
 export interface HealthInfo {
@@ -93,8 +92,8 @@ export interface AuthContextType {
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   completeRegistration: (additionalData: AdditionalUserData) => Promise<boolean>;
-  registrationData: RegisterData | null; // Added to store registration data
-  setRegistrationData: (data: RegisterData | null) => void; // Added to set registration data
+  registrationData: RegisterData | null;
+  setRegistrationData: (data: RegisterData | null) => void;
 }
 
 export interface RegisterData {
@@ -110,7 +109,7 @@ export interface RegisterData {
   status: string;
   weight?: number;
   height?: number;
-  cref?: string; // Added missing cref property
+  cref?: string;
 }
 
 export interface AdditionalUserData {
@@ -142,7 +141,7 @@ export interface Exercise {
   sets: number;
   reps: number;
   weight?: number;
-  rest: number; // segundos
+  rest: number;
   notes?: string;
   videoUrl?: string;
   muscleGroup: string;

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { api } from "@/services/api";
+import { toast } from "sonner";
 import {
   Calendar,
   Mail,
@@ -22,54 +26,115 @@ import {
   Upload,
   Lock,
   Plus,
+  Loader,
 } from "lucide-react";
 
 const Profile = () => {
   const { user } = useAuth();
+  const [profileData, setProfileData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const isTrainer = user?.role === "trainer";
-  
-  // Dados fictícios de perfil
-  const profileData = isTrainer
-    ? {
-        name: user?.name || "Nome do Trainer",
-        email: user?.email || "email@exemplo.com",
-        phone: "(11) 99999-9999",
-        location: "São Paulo, SP",
-        specialties: ["Musculação", "HIIT", "Funcional", "Reabilitação"],
-        experience: "8 anos",
-        bio: "Personal trainer especializado em hipertrofia e emagrecimento, com formação em Educação Física e pós-graduação em Fisiologia do Exercício.",
-        certifications: [
-          "Bacharelado em Educação Física - USP",
-          "Especialização em Treinamento Funcional",
-          "Certificação em Nutrição Esportiva",
-        ],
-        availability: [
-          { day: "Segunda", hours: "06:00 - 21:00" },
-          { day: "Terça", hours: "06:00 - 21:00" },
-          { day: "Quarta", hours: "06:00 - 21:00" },
-          { day: "Quinta", hours: "06:00 - 21:00" },
-          { day: "Sexta", hours: "06:00 - 19:00" },
-          { day: "Sábado", hours: "08:00 - 12:00" },
-        ],
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.token) {
+        try {
+          setIsLoading(true);
+          const userData = await api.getUserProfile(user.token);
+          
+          // Se for trainer, montar os dados fictícios complementares
+          if (userData.role === "trainer") {
+            setProfileData({
+              ...userData,
+              specialties: ["Musculação", "HIIT", "Funcional", "Reabilitação"],
+              experience: "8 anos",
+              bio: "Personal trainer especializado em hipertrofia e emagrecimento, com formação em Educação Física e pós-graduação em Fisiologia do Exercício.",
+              certifications: [
+                "Bacharelado em Educação Física - USP",
+                "Especialização em Treinamento Funcional",
+                "Certificação em Nutrição Esportiva",
+              ],
+              availability: [
+                { day: "Segunda", hours: "06:00 - 21:00" },
+                { day: "Terça", hours: "06:00 - 21:00" },
+                { day: "Quarta", hours: "06:00 - 21:00" },
+                { day: "Quinta", hours: "06:00 - 21:00" },
+                { day: "Sexta", hours: "06:00 - 19:00" },
+                { day: "Sábado", hours: "08:00 - 12:00" },
+              ],
+              location: userData.address || "São Paulo, SP",
+            });
+          } else {
+            // Se for aluno, montar os dados fictícios complementares
+            setProfileData({
+              ...userData,
+              location: userData.address || "São Paulo, SP", 
+              joinDate: userData.createdAt ? format(new Date(userData.createdAt), "dd/MM/yyyy") : "10/01/2023",
+              goals: ["Perda de peso", "Tonificação muscular", "Melhora do condicionamento"],
+              healthInfo: {
+                height: userData.height || 175,
+                weight: userData.weight || 75.5,
+                allergies: "Nenhuma",
+                medicalConditions: "Nenhuma",
+                injuries: "Nenhuma",
+              },
+              trainer: "Ana Silva",
+              birthdate: userData.dateOfBirth 
+                ? format(new Date(userData.dateOfBirth), "dd/MM/yyyy", { locale: ptBR })
+                : "15/05/1990",
+            });
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados do perfil:", error);
+          toast.error("Não foi possível carregar seu perfil. Tente novamente mais tarde.");
+          
+          // Se falhar, usar dados fictícios
+          const defaultData = isTrainer
+            ? {
+                name: user?.name || "Nome do Trainer",
+                email: user?.email || "email@exemplo.com",
+                phone: "(11) 99999-9999",
+                location: "São Paulo, SP",
+                specialties: ["Musculação", "HIIT", "Funcional"],
+                experience: "5 anos",
+                bio: "Personal trainer",
+                certifications: ["Educação Física"],
+                availability: [{ day: "Segunda", hours: "08:00 - 18:00" }],
+              }
+            : {
+                name: user?.name || "Nome do Aluno",
+                email: user?.email || "email@exemplo.com",
+                phone: "(11) 99999-9999",
+                birthdate: "01/01/1990",
+                location: "São Paulo, SP",
+                joinDate: "01/01/2023",
+                goals: ["Perda de peso"],
+                healthInfo: {
+                  height: 175,
+                  weight: 75,
+                  allergies: "Nenhuma",
+                  medicalConditions: "Nenhuma",
+                  injuries: "Nenhuma",
+                },
+                trainer: "Trainer Padrão",
+              };
+          
+          setProfileData(defaultData);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
       }
-    : {
-        name: user?.name || "Nome do Aluno",
-        email: user?.email || "email@exemplo.com",
-        phone: "(11) 99999-9999",
-        birthdate: "15/05/1990",
-        location: "São Paulo, SP",
-        joinDate: "10/01/2023",
-        goals: ["Perda de peso", "Tonificação muscular", "Melhora do condicionamento"],
-        healthInfo: {
-          height: 175,
-          weight: 75.5,
-          allergies: "Nenhuma",
-          medicalConditions: "Nenhuma",
-          injuries: "Nenhuma",
-        },
-        trainer: "Ana Silva",
-      };
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   // Função para obter iniciais do nome
   const getInitials = (name: string | undefined) => {
@@ -82,6 +147,47 @@ const Profile = () => {
       .toUpperCase()
       .substring(0, 2);
   };
+
+  // Função para lidar com upload de avatar
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAvatarFile(file);
+      
+      // Criar preview da imagem selecionada
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Função para salvar avatar
+  const handleAvatarUpload = async () => {
+    if (!avatarFile || !user?.token) return;
+    
+    try {
+      setIsUploading(true);
+      const avatarUrl = await api.uploadAvatar(user.token, avatarFile);
+      setProfileData((prev: any) => ({ ...prev, avatar: avatarUrl }));
+      toast.success("Foto de perfil atualizada com sucesso!");
+    } catch (error: any) {
+      toast.error(error.message || "Falha ao atualizar foto de perfil");
+    } finally {
+      setIsUploading(false);
+      setAvatarFile(null);
+    }
+  };
+
+  // Se ainda estiver carregando, mostra um spinner
+  if (isLoading) {
+    return (
+      <div className="container py-8 flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8">
@@ -100,46 +206,75 @@ const Profile = () => {
             <CardHeader>
               <div className="flex flex-col items-center">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src="" />
+                  <AvatarImage src={avatarPreview || profileData?.avatar || ""} />
                   <AvatarFallback className="text-xl">
-                    {getInitials(profileData.name)}
+                    {getInitials(profileData?.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="mt-4 text-center">
-                  <CardTitle className="text-xl">{profileData.name}</CardTitle>
+                  <CardTitle className="text-xl">{profileData?.name}</CardTitle>
                   <CardDescription>
                     {isTrainer ? "Personal Trainer" : "Aluno"}
                   </CardDescription>
                 </div>
-                <Button variant="outline" size="sm" className="mt-2">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Alterar foto
-                </Button>
+                <div className="mt-2 flex gap-2">
+                  <input
+                    type="file"
+                    id="avatar-upload"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                  <label htmlFor="avatar-upload">
+                    <Button variant="outline" size="sm" className="cursor-pointer" asChild>
+                      <span>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Escolher foto
+                      </span>
+                    </Button>
+                  </label>
+                  {avatarFile && (
+                    <Button 
+                      size="sm" 
+                      disabled={isUploading}
+                      onClick={handleAvatarUpload}
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader className="h-3 w-3 mr-2 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        "Salvar"
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{profileData.email}</span>
+                  <span className="text-sm">{profileData?.email}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{profileData.phone}</span>
+                  <span className="text-sm">{profileData?.phone || "(11) 99999-9999"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{profileData.location}</span>
+                  <span className="text-sm">{profileData?.location}</span>
                 </div>
                 {!isTrainer && (
                   <>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{profileData.birthdate}</span>
+                      <span className="text-sm">{profileData?.birthdate}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">Treinador: {(profileData as any).trainer}</span>
+                      <span className="text-sm">Treinador: {profileData?.trainer}</span>
                     </div>
                   </>
                 )}
@@ -147,7 +282,7 @@ const Profile = () => {
                   <div className="flex items-center gap-2">
                     <Award className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      {(profileData as any).experience} de experiência
+                      {profileData?.experience} de experiência
                     </span>
                   </div>
                 )}
@@ -157,7 +292,7 @@ const Profile = () => {
                 <div>
                   <h3 className="text-sm font-medium mb-2">Especialidades</h3>
                   <div className="flex flex-wrap gap-1">
-                    {(profileData as any).specialties.map(
+                    {profileData?.specialties?.map(
                       (specialty: string, index: number) => (
                         <span
                           key={index}
@@ -173,7 +308,7 @@ const Profile = () => {
                 <div>
                   <h3 className="text-sm font-medium mb-2">Objetivos</h3>
                   <div className="flex flex-wrap gap-1">
-                    {(profileData as any).goals.map((goal: string, index: number) => (
+                    {profileData?.goals?.map((goal: string, index: number) => (
                       <span
                         key={index}
                         className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full"
