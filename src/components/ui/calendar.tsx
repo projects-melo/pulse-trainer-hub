@@ -1,21 +1,12 @@
 
 import * as React from "react"
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import { DayPicker, DropdownProps } from "react-day-picker"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
-
-// Custom dropdown props interface to match what we're actually using
-interface CustomDropdownProps {
-  name?: string;
-  caption?: React.ReactNode;
-  value?: string | number;
-  onChange?: (value: string) => void;
-  options?: (string | number)[];
-}
 
 function Calendar({
   className,
@@ -68,11 +59,14 @@ function Calendar({
       components={{
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-        Dropdown: (props: CustomDropdownProps) => {
+        Dropdown: (props: DropdownProps) => {
           const options = props.options || []
           const onChange = (value: string) => {
             if (props.onChange) {
-              props.onChange(value)
+              const event = {
+                target: { value }
+              } as React.ChangeEvent<HTMLSelectElement>
+              props.onChange(event)
             }
           }
           
