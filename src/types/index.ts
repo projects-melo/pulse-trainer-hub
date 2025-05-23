@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -25,6 +26,11 @@ export interface Trainer extends User {
   bio: string;
   students: Student[];
   cref?: string;
+  college?: string;
+  graduation_date?: Date;
+  experience_duration?: string;
+  primary_specialty?: string;
+  certifications?: string;
 }
 
 export interface Student extends User {
@@ -149,4 +155,15 @@ export interface Exercise {
   notes?: string;
   videoUrl?: string;
   muscleGroup: string;
+}
+
+export interface TrainerAdditionalData {
+  cref: string;
+  college: string;
+  graduation_date: string;
+  experience_duration: string;
+  specialty: string;
+  certifications: string;
+  primary_specialty: string;
+  bio: string;
 }

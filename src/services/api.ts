@@ -1,3 +1,4 @@
+
 import { RegisterData, User, AdditionalUserData } from "@/types";
 
 const API_URL = "http://localhost:8080";
@@ -34,16 +35,16 @@ export const api = {
       console.log("Login response:", data);
       
       // If the API only returns a token, create a minimal user object
-      if (data.token && (!data.user && !data.name)) {
+      if (data.login && (!data.user && !data.name)) {
         // Use the email from the login request to create a basic user
         return {
           id: "temp-id", // Temporary ID until profile is loaded
-          name: data.name, // Use part of email as temporary name
-          username: data.username,
+          name: "", // Will be filled in by getUserProfile
+          username: "",
           email: email,
-          role: "trainer", // Default role, can be updated later
+          role: "student", // Default role, can be updated later by getUserProfile
           createdAt: new Date(),
-          token: data.token // Store the token
+          token: data.login // Store the token
         };
       }
       
@@ -56,8 +57,8 @@ export const api = {
       }
       
       // Add token to user data if it exists in the response
-      if (data.token) {
-        userData.token = data.token;
+      if (data.login) {
+        userData.token = data.login;
       }
 
       // Ensure all required user properties exist
@@ -66,9 +67,9 @@ export const api = {
         name: userData.name || email.split('@')[0],
         email: userData.email || email,
         username: userData.username || null,
-        role: userData.role || "trainer",
+        role: userData.role === "personal" ? "trainer" : "student", // Map API response back to our app's roles
         createdAt: userData.createdAt || new Date(),
-        token: userData.token || null
+        token: userData.token || data.login || null
       };
 
       return safeUser;
@@ -157,7 +158,8 @@ export const api = {
         username: registeredUser.username || userData.username || null,
         role: registeredUser.role === "personal" ? "trainer" : "student", // Map API response back to our app's roles
         createdAt: registeredUser.createdAt || new Date(),
-        token: registeredUser.token || null
+        token: registeredUser.token || null,
+        cref: userData.cref
       };
       
       return safeUser;
@@ -240,7 +242,7 @@ export const api = {
         cref: userData.cref,
         avatar: userData.avatar,
         status: userData.status,
-        address: userData.address
+        address: userData.address || ""
       };
       
       return safeUser;

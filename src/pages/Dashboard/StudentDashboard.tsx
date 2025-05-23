@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -25,11 +24,14 @@ const StudentDashboard = () => {
     workoutsTotal: 12,
   };
 
+  // Get the user's name to display in greeting
+  const displayName = user?.name || user?.username || 'Aluno';
+
   return (
     <div className="container py-8">
       <div className="flex flex-col gap-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Olá, {user?.name || 'Aluno'}!</h1>
+          <h1 className="text-3xl font-bold mb-2">Olá, {displayName}!</h1>
           <p className="text-muted-foreground">Bem-vindo ao seu dashboard. Aqui você pode acompanhar seu progresso e próximas sessões.</p>
         </div>
 

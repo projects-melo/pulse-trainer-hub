@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,11 +20,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ModeToggle } from "@/components/theme/theme-toggle";
+import { api } from "@/services/api";
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [profileData, setProfileData] = useState<any>(null);
+
+  useEffect(() => {
+    // Fetch profile data for avatar if user is logged in
+    const fetchUserProfile = async () => {
+      if (user?.token) {
+        try {
+          const userData = await api.getUserProfile(user.token);
+          setProfileData(userData);
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   const navigation = user ? (
     user.role === "trainer" ? [
@@ -54,6 +72,9 @@ export const Navbar = () => {
       .toUpperCase()
       .substring(0, 2);
   };
+
+  // Use avatar from profileData if available, otherwise use from user
+  const avatarUrl = profileData?.avatar || user?.avatar;
 
   return (
     <nav className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -91,7 +112,7 @@ export const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar} alt={user.name || "User"} />
+                    <AvatarImage src={avatarUrl} alt={user.name || "User"} />
                     <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                   </Avatar>
                 </Button>

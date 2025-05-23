@@ -1,146 +1,65 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import {
-  Activity,
-  Weight,
-  Ruler,
-  Heart,
-  TrendingUp,
-  FileText,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import Clock from "@/components/Clock";
+import { Progress } from "@/components/ui/progress";
+import { Loader, CalendarRange, Activity, TrendingUp, Weight, Ruler, Dumbbell } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-// Dados fictícios para demonstração
-const mockProgressData = {
-  weight: {
-    current: 75.5,
-    previous: 78.2,
-    goal: 70,
-    unit: "kg",
-    history: [
-      { date: "2023-01-01", value: 80.0 },
-      { date: "2023-02-01", value: 79.2 },
-      { date: "2023-03-01", value: 78.2 },
-      { date: "2023-04-01", value: 76.8 },
-      { date: "2023-05-01", value: 75.5 },
-    ],
-  },
-  measurements: {
-    chest: { current: 102, previous: 104, unit: "cm" },
-    waist: { current: 84, previous: 86, unit: "cm" },
-    hips: { current: 98, previous: 99, unit: "cm" },
-    arms: { current: 35, previous: 34, unit: "cm" },
-    thighs: { current: 58, previous: 57, unit: "cm" },
-  },
-  performanceTests: [
-    {
-      id: "1",
-      name: "Corrida 1km",
-      date: "2023-04-15",
-      result: 5.2,
-      previousResult: 5.8,
-      unit: "min",
-      improvement: true,
-    },
-    {
-      id: "2",
-      name: "Flexões (máx)",
-      date: "2023-04-15",
-      result: 25,
-      previousResult: 20,
-      unit: "reps",
-      improvement: true,
-    },
-    {
-      id: "3",
-      name: "Prancha",
-      date: "2023-04-15",
-      result: 90,
-      previousResult: 75,
-      unit: "seg",
-      improvement: true,
-    },
-    {
-      id: "4",
-      name: "Agachamento (máx)",
-      date: "2023-04-15",
-      result: 85,
-      previousResult: 80,
-      unit: "kg",
-      improvement: true,
-    },
-  ],
-  workouts: [
-    {
-      id: "1",
-      date: "2023-04-28",
-      name: "Treino A - Superior",
-      completion: 100,
-      duration: 65,
-    },
-    {
-      id: "2",
-      date: "2023-04-26",
-      name: "Treino B - Inferior",
-      completion: 100,
-      duration: 55,
-    },
-    {
-      id: "3",
-      date: "2023-04-24",
-      name: "Treino C - Cardio",
-      completion: 90,
-      duration: 40,
-    },
-    {
-      id: "4",
-      date: "2023-04-21",
-      name: "Treino A - Superior",
-      completion: 100,
-      duration: 60,
-    },
-  ],
-};
+const ProgressPage = () => {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
 
-const Progress = () => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  // Mock data for progress metrics
+  const [progressData, setProgressData] = useState({
+    weight: {
+      current: 75,
+      goal: 70,
+      history: [
+        { date: '01/05', value: 80 },
+        { date: '08/05', value: 78 },
+        { date: '15/05', value: 76.5 },
+        { date: '22/05', value: 75 },
+        { date: '29/05', value: 75 },
+      ],
+    },
+    measurements: {
+      chest: { current: 95, previous: 97 },
+      waist: { current: 83, previous: 85 },
+      hips: { current: 100, previous: 102 },
+      arms: { current: 32, previous: 31 },
+      thighs: { current: 55, previous: 56 },
+    },
+    workouts: {
+      week: 3,
+      total: 4,
+      completed: [
+        { name: 'Segunda', value: 1 },
+        { name: 'Terça', value: 1 },
+        { name: 'Quarta', value: 0 },
+        { name: 'Quinta', value: 1 },
+        { name: 'Sexta', value: 0 },
+        { name: 'Sábado', value: 0 },
+        { name: 'Domingo', value: 0 },
+      ],
+    },
+  });
 
-  // Avançar para o próximo mês
-  const nextMonth = () => {
-    const newMonth = new Date(selectedMonth);
-    newMonth.setMonth(newMonth.getMonth() + 1);
-    setSelectedMonth(newMonth);
-  };
+  useEffect(() => {
+    // Simulate loading data
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, []);
 
-  // Retornar para o mês anterior
-  const previousMonth = () => {
-    const newMonth = new Date(selectedMonth);
-    newMonth.setMonth(newMonth.getMonth() - 1);
-    setSelectedMonth(newMonth);
-  };
-
-  // Formatar o mês atual para exibição
-  const formatMonth = (date: Date) => {
-    return date.toLocaleDateString("pt-BR", {
-      month: "long",
-      year: "numeric",
-    });
-  };
-
-  // Calcular a diferença e a direção de mudança (positiva ou negativa)
-  const calculateChange = (current: number, previous: number) => {
-    const diff = current - previous;
-    return {
-      value: Math.abs(diff),
-      direction: diff >= 0 ? "increase" : "decrease",
-      percentage: previous ? Math.abs((diff / previous) * 100).toFixed(1) : "0",
-    };
-  };
+  if (loading) {
+    return (
+      <div className="container py-8 flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8">
@@ -148,478 +67,286 @@ const Progress = () => {
         <div>
           <h1 className="text-3xl font-bold mb-2">Meu Progresso</h1>
           <p className="text-muted-foreground">
-            Acompanhe seus resultados e evolução ao longo do tempo.
+            Acompanhe sua evolução e métricas de desempenho
           </p>
         </div>
 
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid grid-cols-4 md:w-[500px] mb-6">
+        <Tabs defaultValue="overview">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="measurements">Medidas</TabsTrigger>
-            <TabsTrigger value="tests">Testes</TabsTrigger>
             <TabsTrigger value="workouts">Treinos</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="overview">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Weight Card */}
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card>
                 <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center">
-                      <Weight className="h-5 w-5 text-primary mr-2" />
-                      Peso
-                    </CardTitle>
-                    <div className="text-xl font-bold">
-                      {mockProgressData.weight.current} {mockProgressData.weight.unit}
-                    </div>
-                  </div>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Weight className="h-5 w-5 text-primary" />
+                    Peso
+                  </CardTitle>
+                  <CardDescription>Meta: {progressData.weight.goal} kg</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between text-sm mb-4">
+                  <div className="space-y-4">
                     <div>
-                      <p className="text-muted-foreground">Anterior</p>
-                      <p className="font-medium">
-                        {mockProgressData.weight.previous} {mockProgressData.weight.unit}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Meta</p>
-                      <p className="font-medium">
-                        {mockProgressData.weight.goal} {mockProgressData.weight.unit}
-                      </p>
-                    </div>
-                    <div>
-                      {calculateChange(
-                        mockProgressData.weight.current,
-                        mockProgressData.weight.previous
-                      ).direction === "decrease" ? (
-                        <p className="text-green-500 flex items-center">
-                          <TrendingUp className="h-3.5 w-3.5 mr-1" />
-                          {calculateChange(
-                            mockProgressData.weight.current,
-                            mockProgressData.weight.previous
-                          ).value}{" "}
-                          {mockProgressData.weight.unit} ↓
+                      <div className="flex justify-between mb-1">
+                        <p className="text-sm font-medium">Progresso</p>
+                        <p className="text-sm font-medium">
+                          {progressData.weight.current} kg / {progressData.weight.goal} kg
                         </p>
-                      ) : (
-                        <p className="text-destructive flex items-center">
-                          <TrendingUp className="h-3.5 w-3.5 mr-1" />
-                          {calculateChange(
-                            mockProgressData.weight.current,
-                            mockProgressData.weight.previous
-                          ).value}{" "}
-                          {mockProgressData.weight.unit} ↑
-                        </p>
-                      )}
+                      </div>
+                      <Progress
+                        value={
+                          ((progressData.weight.goal - progressData.weight.current) / 
+                          (progressData.weight.goal - progressData.weight.history[0].value)) * 100
+                        }
+                      />
                     </div>
-                  </div>
-                  <div className="h-[200px] bg-secondary/50 rounded-md flex items-center justify-center">
-                    <p className="text-muted-foreground text-sm">Gráfico de progresso de peso</p>
+                    <div className="pt-2">
+                      <p className="text-sm font-medium mb-1">Histórico de Peso</p>
+                      <div className="h-[120px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={progressData.weight.history}
+                            margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" fontSize={10} />
+                            <YAxis domain={['dataMin - 2', 'dataMax + 2']} fontSize={10} />
+                            <Tooltip />
+                            <Bar dataKey="value" fill="hsl(var(--primary))" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Body Measurements Card */}
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center">
-                    <Ruler className="h-5 w-5 text-primary mr-2" />
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Ruler className="h-5 w-5 text-primary" />
                     Medidas Corporais
                   </CardTitle>
-                  <CardDescription>Última atualização: 01/05/2023</CardDescription>
+                  <CardDescription>Comparação com última medição</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {Object.entries(mockProgressData.measurements).map(([key, data]) => (
-                      <div key={key} className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium capitalize">{key}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Anterior: {data.previous} {data.unit}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold">
-                            {data.current} {data.unit}
-                          </p>
-                          <p
-                            className={`text-xs ${
-                              data.current < data.previous
-                                ? "text-green-500"
-                                : data.current > data.previous
-                                ? "text-primary"
-                                : "text-muted-foreground"
-                            }`}
-                          >
-                            {data.current < data.previous
-                              ? `↓ ${data.previous - data.current} ${data.unit}`
-                              : data.current > data.previous
-                              ? `↑ ${data.current - data.previous} ${data.unit}`
-                              : "Sem alteração"}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Performance Tests Card */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center">
-                    <Activity className="h-5 w-5 text-primary mr-2" />
-                    Testes de Performance
-                  </CardTitle>
-                  <CardDescription>Última avaliação: 15/04/2023</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {mockProgressData.performanceTests.slice(0, 3).map((test) => (
-                      <div key={test.id} className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{test.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Anterior: {test.previousResult} {test.unit}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold">
-                            {test.result} {test.unit}
-                          </p>
-                          <p
-                            className={`text-xs ${
-                              (test.unit === "min" && test.result < test.previousResult) ||
-                              (test.unit !== "min" && test.result > test.previousResult)
-                                ? "text-green-500"
-                                : "text-destructive"
-                            }`}
-                          >
-                            {(test.unit === "min" && test.result < test.previousResult) ||
-                            (test.unit !== "min" && test.result > test.previousResult)
-                              ? "Melhora"
-                              : "Piora"}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                    <Button variant="outline" size="sm" className="w-full">
-                      Ver todos os testes
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Workouts Card */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center">
-                    <Heart className="h-5 w-5 text-primary mr-2" />
-                    Treinos Recentes
-                  </CardTitle>
-                  <CardDescription>Últimos treinos realizados</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {mockProgressData.workouts.slice(0, 3).map((workout) => (
-                      <div key={workout.id} className="flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{workout.name}</p>
-                          <div className="flex items-center text-xs text-muted-foreground">
-                            <Calendar className="h-3.5 w-3.5 mr-1" />
-                            {new Date(workout.date).toLocaleDateString("pt-BR")}
-                            {" • "}
-                            <Clock className="h-3.5 w-3.5 mx-1" />
-                            {workout.duration} min
+                    {Object.entries(progressData.measurements).map(([key, value]) => {
+                      const diff = value.current - value.previous;
+                      return (
+                        <div key={key}>
+                          <div className="flex justify-between items-center mb-1">
+                            <p className="text-sm capitalize font-medium">{key}</p>
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm">{value.current} cm</span>
+                              <span
+                                className={`text-xs ${
+                                  diff < 0
+                                    ? "text-green-500"
+                                    : diff > 0
+                                    ? "text-red-500"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                {diff < 0 ? "-" : diff > 0 ? "+" : ""}
+                                {Math.abs(diff)} cm
+                              </span>
+                            </div>
                           </div>
+                          <Progress
+                            value={50}
+                            className={`h-1 ${
+                              diff < 0
+                                ? "bg-green-200 [&>div]:bg-green-500"
+                                : diff > 0
+                                ? "bg-red-200 [&>div]:bg-red-500"
+                                : ""
+                            }`}
+                          />
                         </div>
-                        <div
-                          className={`text-xs px-2 py-1 rounded-full ${
-                            workout.completion === 100
-                              ? "bg-green-500/20 text-green-500"
-                              : workout.completion >= 80
-                              ? "bg-primary/20 text-primary"
-                              : "bg-yellow-500/20 text-yellow-500"
-                          }`}
-                        >
-                          {workout.completion}%
-                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-primary" />
+                    Treinos
+                  </CardTitle>
+                  <CardDescription>Treinos esta semana: {progressData.workouts.week}/{progressData.workouts.total}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <p className="text-sm font-medium">Progresso semanal</p>
+                        <p className="text-sm font-medium">
+                          {progressData.workouts.week}/{progressData.workouts.total}
+                        </p>
                       </div>
-                    ))}
-                    <Button variant="outline" size="sm" className="w-full">
-                      Ver histórico de treinos
-                    </Button>
+                      <Progress
+                        value={(progressData.workouts.week / progressData.workouts.total) * 100}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium mb-2">Dias da semana</p>
+                      <div className="flex justify-between">
+                        {progressData.workouts.completed.map((day, index) => (
+                          <div key={index} className="flex flex-col items-center">
+                            <div
+                              className={`h-6 w-6 rounded-full flex items-center justify-center mb-1 ${
+                                day.value
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-secondary text-secondary-foreground"
+                              }`}
+                            >
+                              {day.value ? "✓" : ""}
+                            </div>
+                            <span className="text-[10px]">
+                              {day.name.substring(0, 1)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="measurements">
+
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Medidas Corporais</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={previousMonth}>
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <p className="text-sm">{formatMonth(selectedMonth)}</p>
-                    <Button variant="outline" size="icon" onClick={nextMonth}>
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                <CardTitle>Tendência de Progresso</CardTitle>
                 <CardDescription>
-                  Acompanhe a evolução das suas medidas corporais
+                  Seu progresso ao longo do tempo
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    {Object.entries(mockProgressData.measurements).map(([key, data]) => (
-                      <Card key={key} className="overflow-hidden">
-                        <CardHeader className="p-4 pb-2">
-                          <CardTitle className="text-sm capitalize">{key}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                          <div className="text-2xl font-bold">
-                            {data.current} {data.unit}
-                          </div>
-                          <p
-                            className={`text-xs flex items-center gap-1 ${
-                              data.current < data.previous
-                                ? "text-green-500"
-                                : data.current > data.previous
-                                ? "text-primary"
-                                : "text-muted-foreground"
-                            }`}
-                          >
-                            {data.current < data.previous ? (
-                              <>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                  className="w-3 h-3"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                {data.previous - data.current} {data.unit}
-                              </>
-                            ) : data.current > data.previous ? (
-                              <>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                  className="w-3 h-3"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                {data.current - data.previous} {data.unit}
-                              </>
-                            ) : (
-                              "Sem alteração"
-                            )}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                  
-                  <div className="rounded-md border p-6">
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium">Histórico de Medidas</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Visualize seu progresso ao longo do tempo
-                      </p>
-                    </div>
-                    <div className="h-[300px] bg-secondary/50 rounded-md flex items-center justify-center">
-                      <p className="text-muted-foreground text-sm">
-                        Gráfico de histórico de medidas corporais
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-center">
-                    <Button>
-                      <FileText className="h-4 w-4 mr-2" />
-                      Adicionar Novas Medidas
-                    </Button>
-                  </div>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={[
+                        { name: "Semana 1", peso: 80, forca: 60, cardio: 40 },
+                        { name: "Semana 2", peso: 78, forca: 65, cardio: 45 },
+                        { name: "Semana 3", peso: 76.5, forca: 70, cardio: 50 },
+                        { name: "Semana 4", peso: 75, forca: 75, cardio: 55 },
+                        { name: "Semana 5", peso: 75, forca: 80, cardio: 60 },
+                      ]}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
+                      <YAxis
+                        yAxisId="right"
+                        orientation="right"
+                        stroke="#82ca9d"
+                      />
+                      <Tooltip />
+                      <Bar
+                        yAxisId="left"
+                        dataKey="peso"
+                        fill="hsl(var(--primary))"
+                        name="Peso (kg)"
+                      />
+                      <Bar
+                        yAxisId="right"
+                        dataKey="forca"
+                        fill="hsl(var(--secondary))"
+                        name="Força"
+                      />
+                      <Bar
+                        yAxisId="right"
+                        dataKey="cardio"
+                        fill="#ffc658"
+                        name="Cardio"
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
-          
-          <TabsContent value="tests">
+
+          {/* Measurements Tab */}
+          <TabsContent value="measurements" className="space-y-6 mt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Testes de Performance</CardTitle>
+                <CardTitle>Detalhes das Medidas</CardTitle>
                 <CardDescription>
-                  Resultados dos seus testes físicos e avaliações
+                  Registro histórico das suas medidas
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {mockProgressData.performanceTests.map((test) => (
-                      <Card key={test.id} className="overflow-hidden">
-                        <CardHeader className="p-4 pb-2">
-                          <CardTitle className="text-sm">{test.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                          <div className="text-2xl font-bold">
-                            {test.result} {test.unit}
-                          </div>
-                          <p
-                            className={`text-xs flex items-center gap-1 ${
-                              (test.unit === "min" && test.result < test.previousResult) ||
-                              (test.unit !== "min" && test.result > test.previousResult)
-                                ? "text-green-500"
-                                : "text-destructive"
-                            }`}
+                  {Object.entries(progressData.measurements).map(([key, value]) => (
+                    <div key={key} className="space-y-2">
+                      <h3 className="text-lg font-medium capitalize">{key}</h3>
+                      <div className="h-[150px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              { date: "Mar", value: value.previous + 2 },
+                              { date: "Abr", value: value.previous },
+                              { date: "Mai", value: value.current },
+                            ]}
                           >
-                            {(test.unit === "min" && test.result < test.previousResult) ||
-                            (test.unit !== "min" && test.result > test.previousResult) ? (
-                              <>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                  className="w-3 h-3"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                {Math.abs(test.result - test.previousResult)} {test.unit}{" "}
-                                {test.unit === "min" ? "mais rápido" : "de melhora"}
-                              </>
-                            ) : (
-                              <>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                  className="w-3 h-3"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                {Math.abs(test.result - test.previousResult)} {test.unit}{" "}
-                                {test.unit === "min" ? "mais lento" : "de redução"}
-                              </>
-                            )}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                  
-                  <div className="rounded-md border p-6">
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium">Histórico de Testes</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Comparação dos resultados ao longo do tempo
-                      </p>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
+                            <Tooltip />
+                            <Bar dataKey="value" fill="hsl(var(--primary))" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
-                    <div className="h-[300px] bg-secondary/50 rounded-md flex items-center justify-center">
-                      <p className="text-muted-foreground text-sm">
-                        Gráfico de evolução dos testes de performance
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="workouts">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Histórico de Treinos</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={previousMonth}>
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <p className="text-sm">{formatMonth(selectedMonth)}</p>
-                    <Button variant="outline" size="icon" onClick={nextMonth}>
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <CardDescription>
-                  Acompanhe seus treinos e performance
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {mockProgressData.workouts.map((workout) => (
-                    <Card key={workout.id}>
-                      <CardContent className="p-4">
-                        <div className="flex flex-col sm:flex-row justify-between gap-4">
-                          <div className="flex gap-4">
-                            <div className="w-12 h-12 rounded-full bg-primary/20 flex flex-col items-center justify-center">
-                              <span className="text-xs font-medium">
-                                {new Date(workout.date).getDate()}
-                              </span>
-                              <span className="text-[10px] text-muted-foreground">
-                                {new Date(workout.date).toLocaleString("pt-BR", {
-                                  month: "short",
-                                })}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="font-medium">{workout.name}</p>
-                              <div className="flex items-center text-xs text-muted-foreground">
-                                <Clock className="h-3.5 w-3.5 mr-1" />
-                                {workout.duration} minutos
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div
-                              className={`text-xs px-2 py-1 rounded-full ${
-                                workout.completion === 100
-                                  ? "bg-green-500/20 text-green-500"
-                                  : workout.completion >= 80
-                                  ? "bg-primary/20 text-primary"
-                                  : "bg-yellow-500/20 text-yellow-500"
-                              }`}
-                            >
-                              {workout.completion}% completo
-                            </div>
-                            <Button variant="outline" size="sm">
-                              Detalhes
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
                   ))}
-                  
-                  <div className="flex justify-center">
-                    <Button>
-                      Ver Todos os Treinos
-                    </Button>
-                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Workouts Tab */}
+          <TabsContent value="workouts" className="space-y-6 mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Histórico de Treinos</CardTitle>
+                <CardDescription>
+                  Seus treinos recentes e desempenho
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {["Peitoral & Tríceps", "Costas & Bíceps", "Pernas", "Funcional"].map((workout, index) => (
+                    <div key={index} className="flex items-center p-4 bg-secondary/30 rounded-lg">
+                      <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mr-4">
+                        <Dumbbell className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-medium">{workout}</h3>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(Date.now() - (index + 1) * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-sm text-muted-foreground">
+                            Duração: 45 min • Completado
+                          </span>
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                            {["+10%", "+5%", "Mantido", "+8%"][index]}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -630,4 +357,4 @@ const Progress = () => {
   );
 };
 
-export default Progress;
+export default ProgressPage;

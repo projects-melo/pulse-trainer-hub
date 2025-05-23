@@ -1,5 +1,6 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { AuthContextType, RegisterData, User, AdditionalUserData } from "@/types";
+import { AuthContextType, RegisterData, User, AdditionalUserData, TrainerAdditionalData } from "@/types";
 import { api } from "@/services/api";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -14,10 +15,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Verificar se há um usuário no localStorage
     const storedUser = localStorage.getItem("fitpulse-user");
+    const token = localStorage.getItem("fitpulse-token");
     
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        
+        // If we have a token, fetch the latest user data
+        if (token) {
+          fetchUserProfile(token, parsedUser);
+        }
       } catch (error) {
         console.error("Erro ao carregar usuário do localStorage:", error);
         localStorage.removeItem("fitpulse-user");
@@ -26,6 +34,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setLoading(false);
   }, []);
+
+  // Function to fetch user profile data
+  const fetchUserProfile = async (token: string, currentUser: User) => {
+    try {
+      const userData = await api.getUserProfile(token);
+      // Update the user data with the latest from the API
+      setUser({...currentUser, ...userData});
+      // Update localStorage
+      localStorage.setItem("fitpulse-user", JSON.stringify({...currentUser, ...userData}));
+    } catch (error) {
+      console.error("Erro ao atualizar perfil do usuário:", error);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -46,6 +67,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         title: "Login realizado com sucesso",
         description: `Bem-vindo(a) de volta, ${displayName}!`,
       });
+
+      // Fetch complete user profile
+      if (userData.token) {
+        fetchUserProfile(userData.token, userData);
+      }
     } catch (error: any) {
       toast({
         title: "Erro ao realizar login",
