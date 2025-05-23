@@ -1,12 +1,21 @@
 
 import * as React from "react"
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
-import { DayPicker, DropdownProps } from "react-day-picker"
+import { DayPicker } from "react-day-picker"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
+
+// Custom dropdown props interface to match what we're actually using
+interface CustomDropdownProps {
+  name?: string;
+  caption?: React.ReactNode;
+  value?: string | number;
+  onChange?: (value: string) => void;
+  options?: (string | number)[];
+}
 
 function Calendar({
   className,
@@ -59,10 +68,12 @@ function Calendar({
       components={{
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-        Dropdown: ({ ...props }: DropdownProps) => {
-          const options = props.options
+        Dropdown: (props: CustomDropdownProps) => {
+          const options = props.options || []
           const onChange = (value: string) => {
-            props.onChange(typeof value === 'string' ? value : value.toString())
+            if (props.onChange) {
+              props.onChange(value)
+            }
           }
           
           return (
@@ -72,17 +83,17 @@ function Calendar({
               defaultValue={props.value?.toString()}
             >
               <SelectTrigger className="h-7 w-auto px-2 py-1 text-xs border border-input bg-background font-normal">
-                <SelectValue placeholder={props.caption} />
+                <SelectValue placeholder={props.caption?.toString()} />
               </SelectTrigger>
               <SelectContent className="max-h-60 overflow-y-auto">
                 {options.map((option, i) => (
                   <SelectItem
-                    key={option + i.toString()}
+                    key={`${option}-${i}`}
                     value={option.toString()}
                   >
                     {props.name === "months" 
                       ? new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(new Date(0, Number(option) - 1, 1)) 
-                      : option}
+                      : option.toString()}
                   </SelectItem>
                 ))}
               </SelectContent>
