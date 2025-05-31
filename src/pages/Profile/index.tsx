@@ -180,8 +180,8 @@ const Profile = () => {
     }
   };
 
-  // Se ainda estiver carregando, mostra um spinner
-  if (isLoading) {
+  // Se ainda estiver carregando ou profileData for nulo, mostra um spinner
+  if (isLoading || !profileData) {
     return (
       <div className="container py-8 flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <Loader className="h-8 w-8 animate-spin" />
@@ -354,7 +354,7 @@ const Profile = () => {
                             id="bio"
                             placeholder="Fale sobre sua experiência e abordagem como treinador"
                             className="mt-1"
-                            defaultValue={(profileData as any).bio}
+                            defaultValue={profileData?.bio || ""}
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -364,7 +364,7 @@ const Profile = () => {
                               id="experience"
                               placeholder="Ex: 5 anos"
                               className="mt-1"
-                              defaultValue={(profileData as any).experience}
+                              defaultValue={profileData?.experience || ""}
                             />
                           </div>
                           <div>
@@ -373,14 +373,14 @@ const Profile = () => {
                               id="specialty"
                               placeholder="Ex: Musculação"
                               className="mt-1"
-                              defaultValue={(profileData as any).specialties[0]}
+                              defaultValue={profileData?.specialties?.[0] || ""}
                             />
                           </div>
                         </div>
                         <div>
                           <Label htmlFor="specialties">Especialidades</Label>
                           <div className="flex flex-wrap gap-2 mt-1">
-                            {(profileData as any).specialties.map((specialty: string, i: number) => (
+                            {profileData?.specialties?.map((specialty: string, i: number) => (
                               <div
                                 key={i}
                                 className="flex items-center bg-secondary rounded-full px-3 py-1"
@@ -403,7 +403,7 @@ const Profile = () => {
                                   </svg>
                                 </button>
                               </div>
-                            ))}
+                            )) || []}
                             <button className="flex items-center gap-1 text-primary text-sm">
                               <Plus className="h-4 w-4" /> Adicionar
                             </button>
@@ -429,7 +429,7 @@ const Profile = () => {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="space-y-4">
-                          {(profileData as any).certifications.map(
+                          {profileData?.certifications?.map(
                             (certification: string, i: number) => (
                               <div
                                 key={i}
@@ -448,7 +448,7 @@ const Profile = () => {
                                 </Button>
                               </div>
                             )
-                          )}
+                          ) || []}
                         </div>
                         <div className="flex justify-center">
                           <Button variant="outline">
@@ -470,7 +470,7 @@ const Profile = () => {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="space-y-4">
-                          {(profileData as any).availability.map(
+                          {profileData?.availability?.map(
                             (slot: any, i: number) => (
                               <div
                                 key={i}
@@ -492,7 +492,7 @@ const Profile = () => {
                                 </Button>
                               </div>
                             )
-                          )}
+                          ) || []}
                         </div>
                       </CardContent>
                     </Card>
@@ -516,7 +516,7 @@ const Profile = () => {
                               id="name"
                               placeholder="Seu nome"
                               className="mt-1"
-                              defaultValue={profileData.name}
+                              defaultValue={profileData?.name || ""}
                             />
                           </div>
                           <div>
@@ -526,7 +526,7 @@ const Profile = () => {
                               type="email"
                               placeholder="seu@email.com"
                               className="mt-1"
-                              defaultValue={profileData.email}
+                              defaultValue={profileData?.email || ""}
                             />
                           </div>
                         </div>
@@ -537,7 +537,7 @@ const Profile = () => {
                               id="phone"
                               placeholder="(00) 00000-0000"
                               className="mt-1"
-                              defaultValue={profileData.phone}
+                              defaultValue={profileData?.phone || ""}
                             />
                           </div>
                           <div>
@@ -546,7 +546,7 @@ const Profile = () => {
                               id="birthdate"
                               placeholder="dd/mm/aaaa"
                               className="mt-1"
-                              defaultValue={(profileData as any).birthdate}
+                              defaultValue={profileData?.birthdate || ""}
                             />
                           </div>
                         </div>
@@ -556,13 +556,13 @@ const Profile = () => {
                             id="location"
                             placeholder="Cidade, Estado"
                             className="mt-1"
-                            defaultValue={profileData.location}
+                            defaultValue={profileData?.location || ""}
                           />
                         </div>
                         <div>
                           <Label htmlFor="goals">Objetivos</Label>
                           <div className="flex flex-wrap gap-2 mt-1">
-                            {(profileData as any).goals.map(
+                            {profileData?.goals?.map(
                               (goal: string, i: number) => (
                                 <div
                                   key={i}
@@ -587,7 +587,7 @@ const Profile = () => {
                                   </button>
                                 </div>
                               )
-                            )}
+                            ) || []}
                             <button className="flex items-center gap-1 text-primary text-sm">
                               <Plus className="h-4 w-4" /> Adicionar
                             </button>
@@ -620,7 +620,7 @@ const Profile = () => {
                               type="number"
                               placeholder="175"
                               className="mt-1"
-                              defaultValue={(profileData as any).healthInfo.height}
+                              defaultValue={profileData?.healthInfo?.height || ""}
                             />
                           </div>
                           <div>
@@ -631,7 +631,7 @@ const Profile = () => {
                               placeholder="70"
                               step="0.1"
                               className="mt-1"
-                              defaultValue={(profileData as any).healthInfo.weight}
+                              defaultValue={profileData?.healthInfo?.weight || ""}
                             />
                           </div>
                         </div>
@@ -641,7 +641,7 @@ const Profile = () => {
                             id="allergies"
                             placeholder="Liste suas alergias ou digite 'nenhuma'"
                             className="mt-1"
-                            defaultValue={(profileData as any).healthInfo.allergies}
+                            defaultValue={profileData?.healthInfo?.allergies || ""}
                           />
                         </div>
                         <div>
@@ -650,7 +650,7 @@ const Profile = () => {
                             id="medical"
                             placeholder="Informe condições médicas relevantes para seu treinamento"
                             className="mt-1"
-                            defaultValue={(profileData as any).healthInfo.medicalConditions}
+                            defaultValue={profileData?.healthInfo?.medicalConditions || ""}
                           />
                         </div>
                         <div>
@@ -659,7 +659,7 @@ const Profile = () => {
                             id="injuries"
                             placeholder="Informe lesões anteriores relevantes para seu treinamento"
                             className="mt-1"
-                            defaultValue={(profileData as any).healthInfo.injuries}
+                            defaultValue={profileData?.healthInfo?.injuries || ""}
                           />
                         </div>
                         <div className="flex justify-end">
