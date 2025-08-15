@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Loader, CalendarRange, Activity, TrendingUp, Weight, Ruler, Dumbbell } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import MeasurementsTable from "@/components/measurements/MeasurementsTable";
 
 const ProgressPage = () => {
   const { user } = useAuth();
@@ -25,11 +26,11 @@ const ProgressPage = () => {
       ],
     },
     measurements: {
-      chest: { current: 95, previous: 97 },
-      waist: { current: 83, previous: 85 },
-      hips: { current: 100, previous: 102 },
-      arms: { current: 32, previous: 31 },
-      thighs: { current: 55, previous: 56 },
+      peito: { current: 95, previous: 97 },
+      cintura: { current: 83, previous: 85 },
+      quadril: { current: 100, previous: 102 },
+      bracos: { current: 32, previous: 31 },
+      coxas: { current: 55, previous: 56 },
     },
     workouts: {
       week: 3,
@@ -138,10 +139,17 @@ const ProgressPage = () => {
                   <div className="space-y-3">
                     {Object.entries(progressData.measurements).map(([key, value]) => {
                       const diff = value.current - value.previous;
+                      const translatedKey = {
+                        peito: "Peito",
+                        cintura: "Cintura", 
+                        quadril: "Quadril",
+                        bracos: "Braços",
+                        coxas: "Coxas"
+                      }[key] || key;
                       return (
                         <div key={key}>
                           <div className="flex justify-between items-center mb-1">
-                            <p className="text-sm capitalize font-medium">{key}</p>
+                            <p className="text-sm font-medium">{translatedKey}</p>
                             <div className="flex items-center gap-1">
                               <span className="text-sm">{value.current} cm</span>
                               <span
@@ -277,40 +285,7 @@ const ProgressPage = () => {
 
           {/* Measurements Tab */}
           <TabsContent value="measurements" className="space-y-6 mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Detalhes das Medidas</CardTitle>
-                <CardDescription>
-                  Registro histórico das suas medidas
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {Object.entries(progressData.measurements).map(([key, value]) => (
-                    <div key={key} className="space-y-2">
-                      <h3 className="text-lg font-medium capitalize">{key}</h3>
-                      <div className="h-[150px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={[
-                              { date: "Mar", value: value.previous + 2 },
-                              { date: "Abr", value: value.previous },
-                              { date: "Mai", value: value.current },
-                            ]}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
-                            <Tooltip />
-                            <Bar dataKey="value" fill="hsl(var(--primary))" />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <MeasurementsTable />
           </TabsContent>
 
           {/* Workouts Tab */}

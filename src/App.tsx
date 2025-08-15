@@ -22,6 +22,7 @@ import Schedule from "./pages/Schedule";
 import Students from "./pages/Students";
 import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
+import Workouts from "./pages/Workouts";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,16 @@ const App = () => (
                   <RoleProtectedRoute roles={["student"]}>
                     <Progress />
                   </RoleProtectedRoute>
+                }
+              />
+              
+              {/* Rota para treinos (disponível para ambos os tipos de usuário) */}
+              <Route
+                path="/treinos"
+                element={
+                  <ProtectedRoute>
+                    <Workouts />
+                  </ProtectedRoute>
                 }
               />
               
