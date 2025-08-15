@@ -289,5 +289,132 @@ export const api = {
       console.error("Erro ao fazer upload de avatar:", error);
       throw error;
     }
+  },
+
+  // Objective management
+  createObjective: async (token: string, name: string): Promise<any> => {
+    try {
+      const response = await fetch(`${API_URL}/user/objective/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ nome: name })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = "Falha ao criar objetivo";
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorText;
+        } catch {
+          errorMessage = errorText;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao criar objetivo:", error);
+      throw error;
+    }
+  },
+
+  linkObjectiveToUser: async (token: string, objectiveIds: number[]): Promise<any> => {
+    try {
+      const response = await fetch(`${API_URL}/user/objective/link`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ objective_id: objectiveIds })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = "Falha ao vincular objetivo";
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorText;
+        } catch {
+          errorMessage = errorText;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao vincular objetivo:", error);
+      throw error;
+    }
+  },
+
+  getAllObjectives: async (token: string): Promise<any[]> => {
+    try {
+      const response = await fetch(`${API_URL}/user/objective/list/all`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = "Falha ao buscar objetivos";
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorText;
+        } catch {
+          errorMessage = errorText;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao buscar objetivos:", error);
+      throw error;
+    }
+  },
+
+  getUserObjectives: async (token: string): Promise<any[]> => {
+    try {
+      const response = await fetch(`${API_URL}/user/objective/list/byUser`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = "Falha ao buscar objetivos do usuário";
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorText;
+        } catch {
+          errorMessage = errorText;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao buscar objetivos do usuário:", error);
+      throw error;
+    }
   }
 };

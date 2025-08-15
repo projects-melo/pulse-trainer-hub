@@ -7,7 +7,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, User, LogOut, Calendar, Users, BarChart2, Activity, Dumbbell } from "lucide-react";
+import { Menu, User, LogOut, Calendar, Users, BarChart2, Activity, Dumbbell, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -50,12 +50,14 @@ export const Navbar = () => {
       { name: "Agenda", href: "/agenda", icon: Calendar },
       { name: "Alunos", href: "/alunos", icon: Users },
       { name: "Treinos", href: "/treinos", icon: Dumbbell },
+      { name: "Objetivos", href: "/objetivos", icon: Target },
       { name: "Perfil", href: "/perfil", icon: User },
     ] : [
       { name: "Dashboard", href: "/dashboard", icon: BarChart2 },
       { name: "Agenda", href: "/agenda", icon: Calendar },
       { name: "Progresso", href: "/progresso", icon: Activity },
       { name: "Treinos", href: "/treinos", icon: Dumbbell },
+      { name: "Objetivos", href: "/objetivos", icon: Target },
       { name: "Perfil", href: "/perfil", icon: User },
     ]
   ) : [

@@ -167,3 +167,9 @@ export interface TrainerAdditionalData {
   primary_specialty: string;
   bio: string;
 }
+
+export interface Objective {
+  id: number;
+  nome: string;
+  created_at?: Date;
+}

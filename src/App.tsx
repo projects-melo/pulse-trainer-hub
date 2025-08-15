@@ -23,6 +23,7 @@ import Students from "./pages/Students";
 import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
 import Workouts from "./pages/Workouts";
+import Objectives from "./pages/Objectives";
 
 const queryClient = new QueryClient();
 
@@ -102,6 +103,15 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Workouts />
+                  </ProtectedRoute>
+                }
+              />
+              
+              <Route
+                path="/objetivos"
+                element={
+                  <ProtectedRoute>
+                    <Objectives />
                   </ProtectedRoute>
                 }
               />
