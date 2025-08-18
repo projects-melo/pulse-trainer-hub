@@ -23,7 +23,7 @@ import Students from "./pages/Students";
 import Progress from "./pages/Progress";
 import Profile from "./pages/Profile";
 import Workouts from "./pages/Workouts";
-import Objectives from "./pages/Objectives";
+
 
 const queryClient = new QueryClient();
 
@@ -107,14 +107,6 @@ const App = () => (
                 }
               />
               
-              <Route
-                path="/objetivos"
-                element={
-                  <ProtectedRoute>
-                    <Objectives />
-                  </ProtectedRoute>
-                }
-              />
               
               {/* Rota para qualquer outra URL não encontrada */}
               <Route path="*" element={<NotFound />} />

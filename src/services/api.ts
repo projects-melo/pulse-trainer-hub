@@ -169,30 +169,6 @@ export const api = {
     }
   },
 
-  // This function is not used in the updated flow, but we'll keep it for potential future use
-  updateUserProfile: async (userId: string, additionalData: AdditionalUserData): Promise<User> => {
-    try {
-      // In a real implementation, we would send this data to the backend
-      // For now we're still simulating storage locally
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const storedUser = localStorage.getItem("fitpulse-user");
-      if (!storedUser) {
-        throw new Error("Usuário não encontrado");
-      }
-      
-      const user: User = JSON.parse(storedUser);
-      const updatedUser = { ...user, ...additionalData };
-      
-      // Store the updated user in localStorage
-      localStorage.setItem("fitpulse-user", JSON.stringify(updatedUser));
-      
-      return updatedUser;
-    } catch (error) {
-      console.error("Erro ao atualizar perfil:", error);
-      throw error;
-    }
-  },
 
   // Nova função para buscar informações do usuário atual
   getUserProfile: async (token: string): Promise<User> => {
@@ -222,32 +198,78 @@ export const api = {
       const data = await response.json();
       console.log("User profile response:", data);
       
-      // Mapear os dados do backend para o formato esperado pelo frontend
-      const userData = data.data || data;
-      
       // Criar um objeto de usuário seguro com todos os campos necessários
       const safeUser: User = {
-        id: userData.id || "temp-id",
-        name: userData.name || "",
-        email: userData.email || "",
-        username: userData.username || "",
-        role: userData.role === "personal" ? "trainer" : "student", // Map API response back to our app's roles
-        createdAt: userData.created_at ? new Date(userData.created_at) : new Date(),
+        id: data.id || "temp-id",
+        name: data.name || "",
+        email: data.email || "",
+        username: data.username || "",
+        role: data.role === "personal" ? "trainer" : "student", // Map API response back to our app's roles
+        createdAt: data.created_at ? new Date(data.created_at) : new Date(),
         token: token,
-        phone: userData.phone,
-        gender: userData.gender,
-        dateOfBirth: userData.date_of_birth ? new Date(userData.date_of_birth) : undefined,
-        weight: userData.weight,
-        height: userData.height ? Number(userData.height) * 100 : undefined, // Converter de metros para cm
-        cref: userData.cref,
-        avatar: userData.avatar,
-        status: userData.status,
-        address: userData.address || ""
+        phone: data.phone,
+        gender: data.gender,
+        dateOfBirth: data.date_of_birth ? new Date(data.date_of_birth) : undefined,
+        weight: data.weight,
+        height: data.height ? Number(data.height) * 100 : undefined, // Converter de metros para cm
+        cref: data.cref,
+        avatar: data.avatar,
+        status: data.status,
+        address: data.address || ""
       };
       
       return safeUser;
     } catch (error) {
       console.error("Erro ao buscar perfil do usuário:", error);
+      throw error;
+    }
+  },
+
+  // Nova função para atualizar informações do usuário
+  updateUserProfile: async (token: string, userData: any): Promise<User> => {
+    try {
+      // Formatar os dados para o formato esperado pela API
+      const apiData = {
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        date_of_birth: userData.date_of_birth,
+        gender: userData.gender,
+        weight: userData.weight,
+        height: userData.height ? userData.height / 100 : undefined, // Converter de cm para metros
+        role: userData.role === "trainer" ? "personal" : "user"
+      };
+
+      const response = await fetch(`${API_URL}/user/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(apiData)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = "Falha ao atualizar informações do usuário";
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || errorText;
+        } catch {
+          errorMessage = errorText;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("User update response:", data);
+      
+      // Retornar o usuário atualizado
+      return await api.getUserProfile(token);
+    } catch (error) {
+      console.error("Erro ao atualizar perfil do usuário:", error);
       throw error;
     }
   },

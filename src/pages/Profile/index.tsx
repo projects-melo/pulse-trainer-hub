@@ -28,6 +28,7 @@ import {
   Plus,
   Loader,
 } from "lucide-react";
+import { ObjectiveManager } from "@/components/objectives/ObjectiveManager";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -325,12 +326,15 @@ const Profile = () => {
           {/* Main Content Area */}
           <div className="lg:col-span-2">
             <Tabs defaultValue={isTrainer ? "info" : "personal"} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-3">
+              <TabsList className="grid w-full grid-cols-3 lg:grid-cols-4">
                 <TabsTrigger value={isTrainer ? "info" : "personal"}>
                   {isTrainer ? "Informações" : "Dados Pessoais"}
                 </TabsTrigger>
                 <TabsTrigger value={isTrainer ? "certifications" : "health"}>
                   {isTrainer ? "Certificações" : "Informações de Saúde"}
+                </TabsTrigger>
+                <TabsTrigger value="objectives">
+                  Objetivos
                 </TabsTrigger>
                 <TabsTrigger value={isTrainer ? "availability" : "security"}>
                   {isTrainer ? "Disponibilidade" : "Segurança"}
@@ -717,14 +721,19 @@ const Profile = () => {
                       </CardContent>
                     </Card>
                   </TabsContent>
-                </>
-              )}
-            </Tabs>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+                 </>
+               )}
 
-export default Profile;
+               {/* Aba de Objetivos */}
+               <TabsContent value="objectives" className="space-y-4 mt-4">
+                 <ObjectiveManager />
+               </TabsContent>
+             </Tabs>
+           </div>
+         </div>
+       </div>
+     </div>
+   );
+ };
+
+ export default Profile;
