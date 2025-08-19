@@ -33,8 +33,10 @@ export const ObjectiveManager = () => {
     try {
       if (!token) return;
       const data = await api.getAllObjectives(token);
-      setObjectives(data);
+      setObjectives(Array.isArray(data) ? data : []);
     } catch (error: any) {
+      console.error("Error loading objectives:", error);
+      setObjectives([]);
       toast({
         title: "Erro",
         description: "Falha ao carregar objetivos",
@@ -47,8 +49,10 @@ export const ObjectiveManager = () => {
     try {
       if (!token) return;
       const data = await api.getUserObjectives(token);
-      setUserObjectives(data);
+      setUserObjectives(Array.isArray(data) ? data : []);
     } catch (error: any) {
+      console.error("Error loading user objectives:", error);
+      setUserObjectives([]);
       toast({
         title: "Erro",
         description: "Falha ao carregar seus objetivos",
@@ -155,7 +159,7 @@ export const ObjectiveManager = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {userObjectives.length === 0 ? (
+          {!userObjectives || userObjectives.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">
               Você ainda não possui objetivos vinculados.
             </p>
@@ -177,7 +181,7 @@ export const ObjectiveManager = () => {
           <CardTitle>Vincular Objetivos Existentes</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {objectives.length === 0 ? (
+          {!objectives || objectives.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">
               Nenhum objetivo disponível.
             </p>
@@ -185,7 +189,7 @@ export const ObjectiveManager = () => {
             <>
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {objectives.map((objective) => {
-                  const isUserObjective = userObjectives.some(uo => uo.id === objective.id);
+                  const isUserObjective = userObjectives && userObjectives.some(uo => uo.id === objective.id);
                   return (
                     <div 
                       key={objective.id} 
@@ -213,7 +217,7 @@ export const ObjectiveManager = () => {
                 })}
               </div>
               
-              {selectedObjectives.length > 0 && (
+              {selectedObjectives && selectedObjectives.length > 0 && (
                 <Button 
                   onClick={linkObjectives}
                   disabled={loading}
